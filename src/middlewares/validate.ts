@@ -13,7 +13,13 @@ export const validate =
       next();
     } catch (error) {
       if (error instanceof ZodError) {
-        return res.status(400).json(error.issues);
+        const errorMessage = error.issues
+          .map((issue) => issue.message)
+          .join(", ");
+        return res.status(400).json({
+          message: errorMessage,
+          errors: error.issues,
+        });
       }
       next(error);
     }
