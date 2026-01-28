@@ -29,8 +29,10 @@ app.use(express.urlencoded({ extended: true }));
 // Cookie Parser - for reading HttpOnly cookies
 app.use(cookieParser());
 
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-app.get("/api-docs.json", (req, res) => res.json(swaggerSpec));
+if (process.env.NODE_ENV !== "production") {
+  app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+  app.get("/api-docs.json", (req, res) => res.json(swaggerSpec));
+}
 
 // Routes
 

@@ -1,4 +1,8 @@
-const API_URL = "http://localhost:3000/api";
+import dotenv from "dotenv";
+dotenv.config();
+
+const PORT = process.env.PORT || 3000;
+const API_URL = `http://localhost:${PORT}/api`;
 
 const run = async () => {
   console.log("🔐 Starting Auth Verification...");
@@ -28,14 +32,14 @@ const run = async () => {
       password: "password123",
     }),
   });
-  const loginData = (await loginRes.json()) as { token: string };
+  const loginData = (await loginRes.json()) as { accessToken: string };
   console.log(
     "   Response:",
     loginRes.status,
-    loginData.token ? "Token received" : "No token"
+    loginData.accessToken ? "Token received" : "No token",
   );
 
-  if (!loginData.token) throw new Error("Login failed");
+  if (!loginData.accessToken) throw new Error("Login failed");
 
   // 3. Protected Route (Optional: Try to get own user details)
   // For now we just verify we have the token.

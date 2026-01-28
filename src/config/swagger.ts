@@ -4,7 +4,11 @@ import {
 } from "@asteasolutions/zod-to-openapi";
 import { z } from "../lib/zod.js";
 import { createUserSchema, updateUserSchema } from "../schemas/user.schema.js";
-import { registerSchema, loginSchema, refreshTokenSchema } from "../schemas/auth.schema.js";
+import {
+  registerSchema,
+  loginSchema,
+  refreshTokenSchema,
+} from "../schemas/auth.schema.js";
 
 const registry = new OpenAPIRegistry();
 
@@ -17,7 +21,7 @@ registry.register(
     email: z.string().email(),
     createdAt: z.string(),
     updatedAt: z.string(),
-  })
+  }),
 );
 
 registry.register("CreateUserRequest", createUserSchema.shape.body);
@@ -50,7 +54,7 @@ registry.registerPath({
               email: z.string().email(),
               createdAt: z.string(),
               updatedAt: z.string(),
-            })
+            }),
           ),
         },
       },
@@ -221,7 +225,7 @@ registry.register(
       name: z.string(),
       email: z.string().email(),
     }),
-  })
+  }),
 );
 
 // Auth Endpoints
@@ -316,11 +320,11 @@ registry.registerPath({
       },
     },
     401: {
-    description: "Invalid or expired refresh token",
-  },
-  400: {
-    description: "Refresh token is required",
-  },
+      description: "Invalid or expired refresh token",
+    },
+    400: {
+      description: "Refresh token is required",
+    },
   },
 });
 
@@ -336,7 +340,7 @@ export const swaggerSpec = generator.generateDocument({
   },
   servers: [
     {
-      url: "http://localhost:3000",
+      url: `http://localhost:${process.env.PORT || 3000}`,
     },
   ],
 });
