@@ -4,7 +4,7 @@ import {
 } from "@asteasolutions/zod-to-openapi";
 import { z } from "../lib/zod.js";
 import { createUserSchema, updateUserSchema } from "../schemas/user.schema.js";
-import { registerSchema, loginSchema } from "../schemas/auth.schema.js";
+import { registerSchema, loginSchema, refreshTokenSchema } from "../schemas/auth.schema.js";
 
 const registry = new OpenAPIRegistry();
 
@@ -295,6 +295,32 @@ registry.registerPath({
     401: {
       description: "Invalid credentials",
     },
+  },
+});
+
+registry.registerPath({
+  method: "post",
+  path: "/api/auth/refresh",
+  description: "Refresh access token",
+  summary: "Refresh token",
+  tags: ["Authentication"],
+  responses: {
+    200: {
+      description: "Refresh token successful",
+      content: {
+        "application/json": {
+          schema: z.object({
+            accessToken: z.string(),
+          }),
+        },
+      },
+    },
+    401: {
+    description: "Invalid or expired refresh token",
+  },
+  400: {
+    description: "Refresh token is required",
+  },
   },
 });
 

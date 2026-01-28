@@ -15,11 +15,27 @@ export const userService = {
   },
 
   async getAllUsers() {
-    return db.select().from(users);
+    return db
+      .select({
+        id: users.id,
+        name: users.name,
+        email: users.email,
+        createdAt: users.createdAt,
+        updatedAt: users.updatedAt,
+      })
+      .from(users);
   },
 
   async getUserById(id: number) {
-    const [user] = await db.select().from(users).where(eq(users.id, id));
+    const [user] = await db.select(
+      {
+        id: users.id,
+        name: users.name,
+        email: users.email,
+        createdAt: users.createdAt,
+        updatedAt: users.updatedAt,
+      }
+    ).from(users).where(eq(users.id, id));
     return user;
   },
 
