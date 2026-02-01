@@ -14,8 +14,17 @@ export const userController = {
 
   async getAllUsers(req: AuthRequest, res: Response, next: NextFunction) {
     try {
-      const users = await userService.getAllUsers();
-      return res.json(users);
+      const { page, limit, search, sortBy, order } = req.query;
+
+      const result = await userService.getAllUsers({
+        page: page ? Number(page) : undefined,
+        limit: limit ? Number(limit) : undefined,
+        search: search as string | undefined,
+        sortBy: sortBy as "name" | "email" | "createdAt" | "updatedAt" | undefined,
+        order: order as "asc" | "desc" | undefined,
+      });
+
+      return res.json(result);
     } catch (error) {
       next(error);
     }

@@ -5,6 +5,7 @@
   "main": "dist/server.js",
   "scripts": {
     "db:push": "npx drizzle-kit push",
+    "db:seed": "tsx src/db/seed.ts",
     "dev": "tsx watch src/server.ts",
     "build": "tsc",
     "start": "node dist/server.js",

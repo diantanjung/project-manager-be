@@ -1,7 +1,25 @@
-import { eq } from "drizzle-orm";
+import { eq, ilike, or, asc, desc, count, SQL } from "drizzle-orm";
 import { db } from "../db/index.js";
 import { users } from "../db/schema.js";
 import bcrypt from "bcryptjs";
+
+export interface PaginationOptions {
+  page?: number;
+  limit?: number;
+  search?: string;
+  sortBy?: "name" | "email" | "createdAt" | "updatedAt";
+  order?: "asc" | "desc";
+}
+
+export interface PaginatedResult<T> {
+  data: T[];
+  pagination: {
+    page: number;
+    limit: number;
+    totalItems: number;
+    totalPages: number;
+  };
+}
 
 export const userService = {
   async createUser(data: typeof users.$inferInsert) {
@@ -14,8 +32,37 @@ export const userService = {
     return rest;
   },
 
-  async getAllUsers() {
-    return db
+  async getAllUsers(options: PaginationOptions = {}) {
+    const {
+      page = 1,
+      limit = 10,
+      search,
+      sortBy = "createdAt",
+      order = "desc",
+    } = options;
+
+    const offset = (page - 1) * limit;
+
+    // Build search filter
+    const searchFilter: SQL | undefined = search
+      ? or(
+        ilike(users.name, `%${search}%`),
+        ilike(users.email, `%${search}%`)
+      )
+      : undefined;
+
+    // Build order by
+    const sortColumn = users[sortBy];
+    const orderBy = order === "asc" ? asc(sortColumn) : desc(sortColumn);
+
+    // Get total count
+    const [{ total }] = await db
+      .select({ total: count() })
+      .from(users)
+      .where(searchFilter);
+
+    // Get paginated data
+    const data = await db
       .select({
         id: users.id,
         name: users.name,
@@ -23,7 +70,21 @@ export const userService = {
         createdAt: users.createdAt,
         updatedAt: users.updatedAt,
       })
-      .from(users);
+      .from(users)
+      .where(searchFilter)
+      .orderBy(orderBy)
+      .limit(limit)
+      .offset(offset);
+
+    return {
+      data,
+      pagination: {
+        page,
+        limit,
+        totalItems: total,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
   },
 
   async getUserById(id: number) {

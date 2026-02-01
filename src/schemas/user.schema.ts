@@ -43,3 +43,21 @@ export const userIdSchema = z.object({
       .or(z.number().transform(Number)),
   }),
 });
+
+export const getUsersQuerySchema = z.object({
+  query: z.object({
+    page: z
+      .string()
+      .transform(Number)
+      .pipe(z.number().int().positive())
+      .optional(),
+    limit: z
+      .string()
+      .transform(Number)
+      .pipe(z.number().int().min(1).max(100))
+      .optional(),
+    search: z.string().optional(),
+    sortBy: z.enum(["name", "email", "createdAt", "updatedAt"]).optional(),
+    order: z.enum(["asc", "desc"]).optional(),
+  }),
+});
