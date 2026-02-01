@@ -181,4 +181,57 @@ export function registerUserEndpoints(registry: OpenAPIRegistry) {
             401: { description: "Unauthorized" },
         },
     });
+
+    // GET /api/users/:id/tasks
+    registry.registerPath({
+        method: "get",
+        path: "/api/users/{id}/tasks",
+        summary: "Get user's tasks",
+        description: "Returns paginated tasks where the user is either the creator or assignee",
+        tags: ["Users"],
+        security: [{ bearerAuth: [] }],
+        request: {
+            params: z.object({ id: z.string() }),
+            query: z.object({
+                page: z.string().optional(),
+                limit: z.string().optional(),
+            }),
+        },
+        responses: {
+            200: {
+                description: "Paginated list of user's tasks",
+                content: {
+                    "application/json": {
+                        schema: z.object({
+                            data: z.array(
+                                z.object({
+                                    id: z.number(),
+                                    title: z.string(),
+                                    description: z.string().nullable(),
+                                    status: z.enum(["backlog", "todo", "in_progress", "review", "done"]),
+                                    priority: z.enum(["low", "medium", "high", "urgent"]).nullable(),
+                                    projectId: z.number(),
+                                    projectName: z.string().nullable(),
+                                    creatorId: z.number(),
+                                    assigneeId: z.number(),
+                                    dueDate: z.string().nullable(),
+                                    position: z.number().nullable(),
+                                    createdAt: z.string(),
+                                    updatedAt: z.string(),
+                                })
+                            ),
+                            pagination: z.object({
+                                page: z.number(),
+                                limit: z.number(),
+                                totalItems: z.number(),
+                                totalPages: z.number(),
+                            }),
+                        }),
+                    },
+                },
+            },
+            404: { description: "User not found" },
+            401: { description: "Unauthorized" },
+        },
+    });
 }

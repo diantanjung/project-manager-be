@@ -1,6 +1,6 @@
 import { eq, ilike, or, asc, desc, count, SQL } from "drizzle-orm";
 import { db } from "../db/index.js";
-import { users } from "../db/schema.js";
+import { users, tasks, projects } from "../db/schema.js";
 import bcrypt from "bcryptjs";
 
 export interface PaginationOptions {
@@ -118,5 +118,56 @@ export const userService = {
       .where(eq(users.id, id))
       .returning();
     return deletedUser;
+  },
+
+  async getUserTasks(userId: number, options: PaginationOptions = {}) {
+    const { page = 1, limit = 10 } = options;
+    const offset = (page - 1) * limit;
+
+    // Filter: tasks where user is creator or assignee
+    const userTasksFilter = or(
+      eq(tasks.creatorId, userId),
+      eq(tasks.assigneeId, userId)
+    );
+
+    // Get total count
+    const [{ total }] = await db
+      .select({ total: count() })
+      .from(tasks)
+      .where(userTasksFilter);
+
+    // Get paginated tasks with related data
+    const data = await db
+      .select({
+        id: tasks.id,
+        title: tasks.title,
+        description: tasks.description,
+        status: tasks.status,
+        priority: tasks.priority,
+        projectId: tasks.projectId,
+        projectName: projects.name,
+        creatorId: tasks.creatorId,
+        assigneeId: tasks.assigneeId,
+        dueDate: tasks.dueDate,
+        position: tasks.position,
+        createdAt: tasks.createdAt,
+        updatedAt: tasks.updatedAt,
+      })
+      .from(tasks)
+      .leftJoin(projects, eq(tasks.projectId, projects.id))
+      .where(userTasksFilter)
+      .orderBy(desc(tasks.createdAt))
+      .limit(limit)
+      .offset(offset);
+
+    return {
+      data,
+      pagination: {
+        page,
+        limit,
+        totalItems: total,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
   },
 };

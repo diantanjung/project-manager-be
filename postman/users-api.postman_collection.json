@@ -1,0 +1,355 @@
+{
+    "info": {
+        "_postman_id": "project-manager-users-api",
+        "name": "Project Manager - Users API",
+        "description": "API collection for testing User Management endpoints",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "auth": {
+        "type": "bearer",
+        "bearer": [
+            {
+                "key": "token",
+                "value": "{{accessToken}}",
+                "type": "string"
+            }
+        ]
+    },
+    "variable": [
+        {
+            "key": "baseUrl",
+            "value": "http://localhost:3000",
+            "type": "string"
+        },
+        {
+            "key": "accessToken",
+            "value": "",
+            "type": "string"
+        },
+        {
+            "key": "userId",
+            "value": "1",
+            "type": "string"
+        }
+    ],
+    "item": [
+        {
+            "name": "Auth",
+            "item": [
+                {
+                    "name": "Login",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "if (pm.response.code === 200) {",
+                                    "    const response = pm.response.json();",
+                                    "    pm.collectionVariables.set('accessToken', response.accessToken);",
+                                    "    pm.collectionVariables.set('userId', response.user.id);",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"email\": \"alice@example.com\",\n    \"password\": \"password123\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/auth/login",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "auth",
+                                "login"
+                            ]
+                        },
+                        "description": "Login to get access token. Token is automatically saved to collection variables."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Register",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"New User\",\n    \"email\": \"newuser@example.com\",\n    \"password\": \"password123\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/auth/register",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "auth",
+                                "register"
+                            ]
+                        },
+                        "description": "Register a new user account"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Refresh Token",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "if (pm.response.code === 200) {",
+                                    "    const response = pm.response.json();",
+                                    "    pm.collectionVariables.set('accessToken', response.accessToken);",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/auth/refresh",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "auth",
+                                "refresh"
+                            ]
+                        },
+                        "description": "Refresh access token using HTTP-only cookie"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Logout",
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/auth/logout",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "auth",
+                                "logout"
+                            ]
+                        },
+                        "description": "Logout and invalidate refresh token"
+                    },
+                    "response": []
+                }
+            ],
+            "description": "Authentication endpoints"
+        },
+        {
+            "name": "Users",
+            "item": [
+                {
+                    "name": "Create User",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"Test User\",\n    \"email\": \"testuser@example.com\",\n    \"password\": \"password123\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/users",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "users"
+                            ]
+                        },
+                        "description": "Create a new user"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get All Users",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/users?page=1&limit=10",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "users"
+                            ],
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "1",
+                                    "description": "Page number"
+                                },
+                                {
+                                    "key": "limit",
+                                    "value": "10",
+                                    "description": "Items per page (max 100)"
+                                },
+                                {
+                                    "key": "search",
+                                    "value": "",
+                                    "description": "Search by name or email",
+                                    "disabled": true
+                                },
+                                {
+                                    "key": "sortBy",
+                                    "value": "createdAt",
+                                    "description": "Sort field: name, email, createdAt, updatedAt",
+                                    "disabled": true
+                                },
+                                {
+                                    "key": "order",
+                                    "value": "desc",
+                                    "description": "Sort order: asc, desc",
+                                    "disabled": true
+                                }
+                            ]
+                        },
+                        "description": "Get paginated list of users with optional filtering and sorting"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get User by ID",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/users/{{userId}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "users",
+                                "{{userId}}"
+                            ]
+                        },
+                        "description": "Get a specific user by ID"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Update User",
+                    "request": {
+                        "method": "PATCH",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"Updated Name\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/users/{{userId}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "users",
+                                "{{userId}}"
+                            ]
+                        },
+                        "description": "Update user details (name, email, password)"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Delete User",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/users/{{userId}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "users",
+                                "{{userId}}"
+                            ]
+                        },
+                        "description": "Delete a user"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get User Tasks",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/users/{{userId}}/tasks?page=1&limit=10",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "users",
+                                "{{userId}}",
+                                "tasks"
+                            ],
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "1",
+                                    "description": "Page number"
+                                },
+                                {
+                                    "key": "limit",
+                                    "value": "10",
+                                    "description": "Items per page (max 100)"
+                                }
+                            ]
+                        },
+                        "description": "Get paginated tasks where user is creator or assignee"
+                    },
+                    "response": []
+                }
+            ],
+            "description": "User Management endpoints"
+        }
+    ]
+}

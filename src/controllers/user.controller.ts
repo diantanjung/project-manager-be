@@ -69,4 +69,25 @@ export const userController = {
     }
   },
 
+  async getUserTasks(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const { page, limit } = req.query;
+      const userId = Number(req.params.id);
+
+      // Check if user exists
+      const user = await userService.getUserById(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      const result = await userService.getUserTasks(userId, {
+        page: page ? Number(page) : undefined,
+        limit: limit ? Number(limit) : undefined,
+      });
+
+      return res.json(result);
+    } catch (error) {
+      next(error);
+    }
+  },
 };

@@ -61,3 +61,23 @@ export const getUsersQuerySchema = z.object({
     order: z.enum(["asc", "desc"]).optional(),
   }),
 });
+
+export const getUserTasksSchema = z.object({
+  params: z.object({
+    id: z
+      .string({ message: "User ID is required" })
+      .or(z.number().transform(Number)),
+  }),
+  query: z.object({
+    page: z
+      .string()
+      .transform(Number)
+      .pipe(z.number().int().positive())
+      .optional(),
+    limit: z
+      .string()
+      .transform(Number)
+      .pipe(z.number().int().min(1).max(100))
+      .optional(),
+  }),
+});
