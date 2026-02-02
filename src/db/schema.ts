@@ -65,7 +65,7 @@ export const refreshTokens = pgTable("refresh_tokens", {
   id: serial("id").primaryKey(),
   userId: integer("user_id")
     .notNull()
-    .references(() => users.id),
+    .references(() => users.id, { onDelete: "cascade" }),
   token: text("token").notNull().unique(),
   expiresAt: timestamp("expires_at").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
@@ -107,7 +107,7 @@ export const teamMembers = pgTable("team_members", {
     .references(() => teams.id),
   userId: integer("user_id")
     .notNull()
-    .references(() => users.id),
+    .references(() => users.id, { onDelete: "cascade" }),
   role: text("role").default("member"), // e.g., "owner", "admin", "member"
   joinedAt: timestamp("joined_at").defaultNow(),
 });
@@ -136,7 +136,7 @@ export const projects = pgTable("projects", {
     .references(() => teams.id),
   ownerId: integer("owner_id")
     .notNull()
-    .references(() => users.id),
+    .references(() => users.id, { onDelete: "cascade" }),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -195,10 +195,10 @@ export const tasks = pgTable("tasks", {
     .references(() => projects.id),
   creatorId: integer("creator_id")
     .notNull()
-    .references(() => users.id),
+    .references(() => users.id, { onDelete: "cascade" }),
   assigneeId: integer("assignee_id")
     .notNull()
-    .references(() => users.id),
+    .references(() => users.id, { onDelete: "cascade" }),
   dueDate: date("due_date"),
   position: integer("position").default(0), // For ordering within a status column
   createdAt: timestamp("created_at").defaultNow(),
@@ -261,7 +261,7 @@ export const comments = pgTable("comments", {
     .references(() => tasks.id),
   authorId: integer("author_id")
     .notNull()
-    .references(() => users.id),
+    .references(() => users.id, { onDelete: "cascade" }),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -292,7 +292,7 @@ export const attachments = pgTable("attachments", {
     .references(() => tasks.id),
   uploaderId: integer("uploader_id")
     .notNull()
-    .references(() => users.id),
+    .references(() => users.id, { onDelete: "cascade" }),
   createdAt: timestamp("created_at").defaultNow(),
 });
 

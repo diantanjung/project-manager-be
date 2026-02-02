@@ -57,7 +57,7 @@ export const getUsersQuerySchema = z.object({
       .pipe(z.number().int().min(1).max(100))
       .optional(),
     search: z.string().optional(),
-    sortBy: z.enum(["name", "email", "createdAt", "updatedAt"]).optional(),
+    sortBy: z.enum(["name", "email", "role", "createdAt", "updatedAt"]).optional(),
     order: z.enum(["asc", "desc"]).optional(),
   }),
 });

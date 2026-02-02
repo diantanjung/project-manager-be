@@ -1,4 +1,4 @@
-import { eq, ilike, or, asc, desc, count, SQL } from "drizzle-orm";
+import { eq, ilike, or, and, asc, desc, count, SQL } from "drizzle-orm";
 import { db } from "../db/index.js";
 import { users, tasks, projects } from "../db/schema.js";
 import bcrypt from "bcryptjs";
@@ -7,7 +7,8 @@ export interface PaginationOptions {
   page?: number;
   limit?: number;
   search?: string;
-  sortBy?: "name" | "email" | "createdAt" | "updatedAt";
+  role?: "admin" | "productOwner" | "projectManager" | "teamMember";
+  sortBy?: "name" | "email" | "role" | "createdAt" | "updatedAt";
   order?: "asc" | "desc";
 }
 
@@ -37,19 +38,30 @@ export const userService = {
       page = 1,
       limit = 10,
       search,
+      role,
       sortBy = "createdAt",
       order = "desc",
     } = options;
 
     const offset = (page - 1) * limit;
 
-    // Build search filter
-    const searchFilter: SQL | undefined = search
-      ? or(
-        ilike(users.name, `%${search}%`),
-        ilike(users.email, `%${search}%`)
-      )
-      : undefined;
+    // Build filters
+    const filters: SQL[] = [];
+
+    if (search) {
+      filters.push(
+        or(
+          ilike(users.name, `%${search}%`),
+          ilike(users.email, `%${search}%`)
+        )!
+      );
+    }
+
+    if (role) {
+      filters.push(eq(users.role, role));
+    }
+
+    const whereClause = filters.length > 0 ? and(...filters) : undefined;
 
     // Build order by
     const sortColumn = users[sortBy];
@@ -59,7 +71,7 @@ export const userService = {
     const [{ total }] = await db
       .select({ total: count() })
       .from(users)
-      .where(searchFilter);
+      .where(whereClause);
 
     // Get paginated data
     const data = await db
@@ -67,11 +79,12 @@ export const userService = {
         id: users.id,
         name: users.name,
         email: users.email,
+        role: users.role,
         createdAt: users.createdAt,
         updatedAt: users.updatedAt,
       })
       .from(users)
-      .where(searchFilter)
+      .where(whereClause)
       .orderBy(orderBy)
       .limit(limit)
       .offset(offset);

@@ -14,13 +14,14 @@ export const userController = {
 
   async getAllUsers(req: AuthRequest, res: Response, next: NextFunction) {
     try {
-      const { page, limit, search, sortBy, order } = req.query;
+      const { page, limit, search, role, sortBy, order } = req.query;
 
       const result = await userService.getAllUsers({
         page: page ? Number(page) : undefined,
         limit: limit ? Number(limit) : undefined,
         search: search as string | undefined,
-        sortBy: sortBy as "name" | "email" | "createdAt" | "updatedAt" | undefined,
+        role: role as "admin" | "productOwner" | "projectManager" | "teamMember" | undefined,
+        sortBy: sortBy as "name" | "email" | "role" | "createdAt" | "updatedAt" | undefined,
         order: order as "asc" | "desc" | undefined,
       });
 
