@@ -4,6 +4,13 @@ import {
 } from "@asteasolutions/zod-to-openapi";
 import { registerUserEndpoints } from "./swagger/user.swagger.js";
 import { registerAuthEndpoints } from "./swagger/auth.swagger.js";
+import { registerTeamEndpoints } from "./swagger/team.swagger.js";
+import { registerProjectEndpoints } from "./swagger/project.swagger.js";
+import { registerProjectTeamEndpoints } from "./swagger/projectTeam.swagger.js";
+import { registerTaskEndpoints } from "./swagger/task.swagger.js";
+import { registerTaskAssignmentEndpoints } from "./swagger/taskAssignment.swagger.js";
+import { registerCommentEndpoints } from "./swagger/comment.swagger.js";
+import { registerAttachmentEndpoints } from "./swagger/attachment.swagger.js";
 
 const registry = new OpenAPIRegistry();
 
@@ -15,8 +22,15 @@ registry.registerComponent("securitySchemes", "bearerAuth", {
 });
 
 // Register endpoints from separate files
-registerUserEndpoints(registry);
 registerAuthEndpoints(registry);
+registerUserEndpoints(registry);
+registerTeamEndpoints(registry);
+registerProjectEndpoints(registry);
+registerProjectTeamEndpoints(registry);
+registerTaskEndpoints(registry);
+registerTaskAssignmentEndpoints(registry);
+registerCommentEndpoints(registry);
+registerAttachmentEndpoints(registry);
 
 // Generate OpenAPI spec
 const generator = new OpenApiGeneratorV3(registry.definitions);

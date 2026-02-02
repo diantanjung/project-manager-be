@@ -1,0 +1,1160 @@
+{
+    "info": {
+        "name": "Project Manager API",
+        "_postman_id": "project-manager-api-v2",
+        "description": "Complete API collection for Project Manager with RBAC",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "auth": {
+        "type": "bearer",
+        "bearer": [
+            {
+                "key": "token",
+                "value": "{{accessToken}}",
+                "type": "string"
+            }
+        ]
+    },
+    "variable": [
+        {
+            "key": "baseUrl",
+            "value": "http://localhost:3000/api"
+        },
+        {
+            "key": "accessToken",
+            "value": ""
+        },
+        {
+            "key": "userId",
+            "value": "1"
+        },
+        {
+            "key": "teamId",
+            "value": "1"
+        },
+        {
+            "key": "projectId",
+            "value": "1"
+        },
+        {
+            "key": "taskId",
+            "value": "1"
+        },
+        {
+            "key": "commentId",
+            "value": "1"
+        },
+        {
+            "key": "attachmentId",
+            "value": "1"
+        },
+        {
+            "key": "projectTeamId",
+            "value": "1"
+        },
+        {
+            "key": "taskAssignmentId",
+            "value": "1"
+        }
+    ],
+    "item": [
+        {
+            "name": "Auth",
+            "item": [
+                {
+                    "name": "Register",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"name\": \"Admin User\",\n  \"email\": \"admin@example.com\",\n  \"password\": \"password123\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/auth/register",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "auth",
+                                "register"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Login",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "var jsonData = pm.response.json();",
+                                    "if (jsonData.accessToken) {",
+                                    "    pm.collectionVariables.set('accessToken', jsonData.accessToken);",
+                                    "}"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"password123\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/auth/login",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "auth",
+                                "login"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Refresh Token",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/auth/refresh",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "auth",
+                                "refresh"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Logout",
+                    "request": {
+                        "method": "POST",
+                        "url": {
+                            "raw": "{{baseUrl}}/auth/logout",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "auth",
+                                "logout"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Users",
+            "description": "User Management - Admin: create/delete, ProjectManager: update",
+            "item": [
+                {
+                    "name": "Get All Users",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseUrl}}/users?page=1&limit=10",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "users"
+                            ],
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "1"
+                                },
+                                {
+                                    "key": "limit",
+                                    "value": "10"
+                                },
+                                {
+                                    "key": "search",
+                                    "value": "",
+                                    "disabled": true
+                                },
+                                {
+                                    "key": "sortBy",
+                                    "value": "createdAt",
+                                    "disabled": true
+                                },
+                                {
+                                    "key": "order",
+                                    "value": "desc",
+                                    "disabled": true
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get User by ID",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseUrl}}/users/{{userId}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "users",
+                                "{{userId}}"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get User Tasks",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseUrl}}/users/{{userId}}/tasks?page=1&limit=10",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "users",
+                                "{{userId}}",
+                                "tasks"
+                            ],
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "1"
+                                },
+                                {
+                                    "key": "limit",
+                                    "value": "10"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Create User (Admin)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"name\": \"New User\",\n  \"email\": \"newuser@example.com\",\n  \"password\": \"password123\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/users",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "users"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Update User (ProjectManager+)",
+                    "request": {
+                        "method": "PATCH",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"name\": \"Updated Name\",\n  \"role\": \"projectManager\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/users/{{userId}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "users",
+                                "{{userId}}"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Delete User (Admin)",
+                    "request": {
+                        "method": "DELETE",
+                        "url": {
+                            "raw": "{{baseUrl}}/users/{{userId}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "users",
+                                "{{userId}}"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Teams",
+            "description": "Team Management - ProductOwner: create/update, Admin: delete, ProjectManager: member management",
+            "item": [
+                {
+                    "name": "Get All Teams",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseUrl}}/teams?page=1&limit=10",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "teams"
+                            ],
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "1"
+                                },
+                                {
+                                    "key": "limit",
+                                    "value": "10"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Team by ID",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseUrl}}/teams/{{teamId}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "teams",
+                                "{{teamId}}"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Team Members",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseUrl}}/teams/{{teamId}}/members",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "teams",
+                                "{{teamId}}",
+                                "members"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Create Team (ProductOwner+)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"name\": \"New Team\",\n  \"description\": \"Team description\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/teams",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "teams"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Update Team (ProductOwner+)",
+                    "request": {
+                        "method": "PATCH",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"name\": \"Updated Team Name\",\n  \"description\": \"Updated description\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/teams/{{teamId}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "teams",
+                                "{{teamId}}"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Delete Team (Admin)",
+                    "request": {
+                        "method": "DELETE",
+                        "url": {
+                            "raw": "{{baseUrl}}/teams/{{teamId}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "teams",
+                                "{{teamId}}"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Add Team Member (ProjectManager+)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"userId\": {{userId}},\n  \"role\": \"member\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/teams/{{teamId}}/members",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "teams",
+                                "{{teamId}}",
+                                "members"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Remove Team Member (ProjectManager+)",
+                    "request": {
+                        "method": "DELETE",
+                        "url": {
+                            "raw": "{{baseUrl}}/teams/{{teamId}}/members/{{userId}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "teams",
+                                "{{teamId}}",
+                                "members",
+                                "{{userId}}"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Projects",
+            "description": "Project Management - ProjectManager: create/update, ProductOwner: delete",
+            "item": [
+                {
+                    "name": "Get All Projects",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseUrl}}/projects?page=1&limit=10",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "projects"
+                            ],
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "1"
+                                },
+                                {
+                                    "key": "limit",
+                                    "value": "10"
+                                },
+                                {
+                                    "key": "search",
+                                    "value": "",
+                                    "disabled": true
+                                },
+                                {
+                                    "key": "teamId",
+                                    "value": "",
+                                    "disabled": true
+                                },
+                                {
+                                    "key": "sortBy",
+                                    "value": "createdAt",
+                                    "disabled": true
+                                },
+                                {
+                                    "key": "order",
+                                    "value": "desc",
+                                    "disabled": true
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Project by ID",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseUrl}}/projects/{{projectId}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "projects",
+                                "{{projectId}}"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Project Tasks",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseUrl}}/projects/{{projectId}}/tasks?page=1&limit=10",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "projects",
+                                "{{projectId}}",
+                                "tasks"
+                            ],
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "1"
+                                },
+                                {
+                                    "key": "limit",
+                                    "value": "10"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Project Teams",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseUrl}}/projects/{{projectId}}/teams",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "projects",
+                                "{{projectId}}",
+                                "teams"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Create Project (ProjectManager+)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"name\": \"New Project\",\n  \"description\": \"Project description\",\n  \"teamId\": {{teamId}}\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/projects",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "projects"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Update Project (ProjectManager+)",
+                    "request": {
+                        "method": "PATCH",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"name\": \"Updated Project\",\n  \"description\": \"Updated description\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/projects/{{projectId}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "projects",
+                                "{{projectId}}"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Delete Project (ProductOwner+)",
+                    "request": {
+                        "method": "DELETE",
+                        "url": {
+                            "raw": "{{baseUrl}}/projects/{{projectId}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "projects",
+                                "{{projectId}}"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Project-Teams",
+            "description": "Project-Team Assignments - ProjectManager: assign, ProductOwner: remove",
+            "item": [
+                {
+                    "name": "Get Project Teams (Alt)",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseUrl}}/project-teams/projects/{{projectId}}/teams",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "project-teams",
+                                "projects",
+                                "{{projectId}}",
+                                "teams"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Assign Team to Project (ProjectManager+)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"projectId\": {{projectId}},\n  \"teamId\": {{teamId}}\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/project-teams",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "project-teams"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Remove Team from Project (ProductOwner+)",
+                    "request": {
+                        "method": "DELETE",
+                        "url": {
+                            "raw": "{{baseUrl}}/project-teams/{{projectTeamId}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "project-teams",
+                                "{{projectTeamId}}"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Tasks",
+            "description": "Task Management - ProjectManager: create/delete, All: update",
+            "item": [
+                {
+                    "name": "Get All Tasks",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseUrl}}/tasks?page=1&limit=10",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "tasks"
+                            ],
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "1"
+                                },
+                                {
+                                    "key": "limit",
+                                    "value": "10"
+                                },
+                                {
+                                    "key": "search",
+                                    "value": "",
+                                    "disabled": true
+                                },
+                                {
+                                    "key": "projectId",
+                                    "value": "",
+                                    "disabled": true
+                                },
+                                {
+                                    "key": "status",
+                                    "value": "",
+                                    "disabled": true
+                                },
+                                {
+                                    "key": "priority",
+                                    "value": "",
+                                    "disabled": true
+                                },
+                                {
+                                    "key": "assigneeId",
+                                    "value": "",
+                                    "disabled": true
+                                },
+                                {
+                                    "key": "sortBy",
+                                    "value": "createdAt",
+                                    "disabled": true
+                                },
+                                {
+                                    "key": "order",
+                                    "value": "desc",
+                                    "disabled": true
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Task by ID",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseUrl}}/tasks/{{taskId}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "tasks",
+                                "{{taskId}}"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Create Task (ProjectManager+)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"title\": \"New Task\",\n  \"description\": \"Task description\",\n  \"projectId\": {{projectId}},\n  \"assigneeId\": {{userId}},\n  \"status\": \"todo\",\n  \"priority\": \"medium\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/tasks",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "tasks"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Update Task (All Users)",
+                    "request": {
+                        "method": "PATCH",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"title\": \"Updated Task\",\n  \"description\": \"Updated description\",\n  \"status\": \"in_progress\",\n  \"priority\": \"high\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/tasks/{{taskId}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "tasks",
+                                "{{taskId}}"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Update Task Status (All Users)",
+                    "request": {
+                        "method": "PATCH",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"status\": \"done\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/tasks/{{taskId}}/status",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "tasks",
+                                "{{taskId}}",
+                                "status"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Delete Task (ProjectManager+)",
+                    "request": {
+                        "method": "DELETE",
+                        "url": {
+                            "raw": "{{baseUrl}}/tasks/{{taskId}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "tasks",
+                                "{{taskId}}"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Task-Assignments",
+            "description": "Task Assignments - ProjectManager: assign/remove",
+            "item": [
+                {
+                    "name": "Get Task Assignments",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseUrl}}/task-assignments/tasks/{{taskId}}/assignments",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "task-assignments",
+                                "tasks",
+                                "{{taskId}}",
+                                "assignments"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Assign User to Task (ProjectManager+)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"taskId\": {{taskId}},\n  \"userId\": {{userId}}\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/task-assignments",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "task-assignments"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Remove Task Assignment (ProjectManager+)",
+                    "request": {
+                        "method": "DELETE",
+                        "url": {
+                            "raw": "{{baseUrl}}/task-assignments/{{taskAssignmentId}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "task-assignments",
+                                "{{taskAssignmentId}}"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Comments",
+            "description": "Comment Management - All users (author-only for update/delete)",
+            "item": [
+                {
+                    "name": "Get Task Comments",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseUrl}}/tasks/{{taskId}}/comments",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "tasks",
+                                "{{taskId}}",
+                                "comments"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Create Comment",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"content\": \"This is a comment\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/tasks/{{taskId}}/comments",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "tasks",
+                                "{{taskId}}",
+                                "comments"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Update Comment (Author Only)",
+                    "request": {
+                        "method": "PATCH",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"content\": \"Updated comment\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/comments/{{commentId}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "comments",
+                                "{{commentId}}"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Delete Comment (Author Only)",
+                    "request": {
+                        "method": "DELETE",
+                        "url": {
+                            "raw": "{{baseUrl}}/comments/{{commentId}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "comments",
+                                "{{commentId}}"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Attachments",
+            "description": "Attachment Management - All users (uploader-only for delete)",
+            "item": [
+                {
+                    "name": "Get Task Attachments",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseUrl}}/tasks/{{taskId}}/attachments",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "tasks",
+                                "{{taskId}}",
+                                "attachments"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Attachment by ID",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseUrl}}/attachments/{{attachmentId}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "attachments",
+                                "{{attachmentId}}"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Create Attachment",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"fileName\": \"document.pdf\",\n  \"fileUrl\": \"https://storage.example.com/files/document.pdf\",\n  \"fileSize\": 1024,\n  \"mimeType\": \"application/pdf\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/tasks/{{taskId}}/attachments",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "tasks",
+                                "{{taskId}}",
+                                "attachments"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Delete Attachment (Uploader Only)",
+                    "request": {
+                        "method": "DELETE",
+                        "url": {
+                            "raw": "{{baseUrl}}/attachments/{{attachmentId}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "attachments",
+                                "{{attachmentId}}"
+                            ]
+                        }
+                    }
+                }
+            ]
+        }
+    ]
+}

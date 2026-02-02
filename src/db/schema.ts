@@ -33,12 +33,20 @@ export const taskPriorityEnum = pgEnum("task_priority", [
 // Users
 // ============================================================================
 
+export const userRoleEnum = pgEnum("user_role", [
+  "admin",
+  "productOwner",
+  "projectManager",
+  "teamMember",
+]);
+
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
   email: text("email").notNull().unique(),
   password: text("password").notNull(),
   avatarUrl: text("avatar_url"),
+  role: userRoleEnum("role").default("teamMember").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -143,6 +151,33 @@ export const projectsRelations = relations(projects, ({ one, many }) => ({
     references: [users.id],
   }),
   tasks: many(tasks),
+  projectTeams: many(projectTeams),
+}));
+
+// ============================================================================
+// Project Teams (Join Table: Projects <-> Teams for additional team assignments)
+// ============================================================================
+
+export const projectTeams = pgTable("project_teams", {
+  id: serial("id").primaryKey(),
+  projectId: integer("project_id")
+    .notNull()
+    .references(() => projects.id, { onDelete: "cascade" }),
+  teamId: integer("team_id")
+    .notNull()
+    .references(() => teams.id, { onDelete: "cascade" }),
+  assignedAt: timestamp("assigned_at").defaultNow(),
+});
+
+export const projectTeamsRelations = relations(projectTeams, ({ one }) => ({
+  project: one(projects, {
+    fields: [projectTeams.projectId],
+    references: [projects.id],
+  }),
+  team: one(teams, {
+    fields: [projectTeams.teamId],
+    references: [teams.id],
+  }),
 }));
 
 // ============================================================================
@@ -185,8 +220,34 @@ export const tasksRelations = relations(tasks, ({ one, many }) => ({
   }),
   comments: many(comments),
   attachments: many(attachments),
+  taskAssignments: many(taskAssignments),
 }));
 
+// ============================================================================
+// Task Assignments (Join Table: Tasks <-> Users for additional assignees)
+// ============================================================================
+
+export const taskAssignments = pgTable("task_assignments", {
+  id: serial("id").primaryKey(),
+  taskId: integer("task_id")
+    .notNull()
+    .references(() => tasks.id, { onDelete: "cascade" }),
+  userId: integer("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  assignedAt: timestamp("assigned_at").defaultNow(),
+});
+
+export const taskAssignmentsRelations = relations(taskAssignments, ({ one }) => ({
+  task: one(tasks, {
+    fields: [taskAssignments.taskId],
+    references: [tasks.id],
+  }),
+  user: one(users, {
+    fields: [taskAssignments.userId],
+    references: [users.id],
+  }),
+}));
 
 // ============================================================================
 // Comments
