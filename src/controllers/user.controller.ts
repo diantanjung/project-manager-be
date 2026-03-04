@@ -7,7 +7,10 @@ export const userController = {
     try {
       const user = await userService.createUser(req.body);
       return res.status(201).json(user);
-    } catch (error) {
+    } catch (error: any) {
+      if (error.code === '23505' || error?.cause?.code === '23505') {
+        return res.status(409).json({ message: 'Email is already in use' });
+      }
       next(error);
     }
   },
@@ -53,7 +56,10 @@ export const userController = {
         return res.status(404).json({ message: "User not found" });
       }
       return res.json(user);
-    } catch (error) {
+    } catch (error: any) {
+      if (error.code === '23505' || error?.cause?.code === '23505') {
+        return res.status(409).json({ message: 'Email is already in use' });
+      }
       next(error);
     }
   },

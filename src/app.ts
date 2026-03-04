@@ -14,7 +14,9 @@ import { taskRoutes } from "./routes/task.routes.js";
 import { taskAssignmentRoutes } from "./routes/taskAssignment.routes.js";
 import { commentRoutes } from "./routes/comment.routes.js";
 import { attachmentRoutes } from "./routes/attachment.routes.js";
+import { uploadRoutes } from "./routes/upload.routes.js";
 import { errorHandler } from "./middlewares/errorHandler.js";
+import path from "path";
 
 const app = express();
 
@@ -51,6 +53,10 @@ app.use("/api/tasks", taskRoutes);
 app.use("/api/task-assignments", taskAssignmentRoutes);
 app.use("/api", commentRoutes);    // /api/tasks/:taskId/comments & /api/comments/:id
 app.use("/api", attachmentRoutes); // /api/tasks/:taskId/attachments & /api/attachments/:id
+app.use("/api/upload", uploadRoutes);
+
+// Static file serving for uploads
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
 // Health Check Route
 app.get("/health", (_req, res) => {

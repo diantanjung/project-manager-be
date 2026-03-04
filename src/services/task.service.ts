@@ -86,6 +86,8 @@ export const taskService = {
                 projectName: projects.name,
                 creatorId: tasks.creatorId,
                 assigneeId: tasks.assigneeId,
+                assigneeName: users.name,
+                assigneeAvatarUrl: users.avatarUrl,
                 dueDate: tasks.dueDate,
                 position: tasks.position,
                 createdAt: tasks.createdAt,
@@ -93,6 +95,7 @@ export const taskService = {
             })
             .from(tasks)
             .leftJoin(projects, eq(tasks.projectId, projects.id))
+            .leftJoin(users, eq(tasks.assigneeId, users.id))
             .where(whereClause)
             .orderBy(orderBy)
             .limit(limit)
@@ -121,6 +124,8 @@ export const taskService = {
                 projectName: projects.name,
                 creatorId: tasks.creatorId,
                 assigneeId: tasks.assigneeId,
+                assigneeName: users.name,
+                assigneeAvatarUrl: users.avatarUrl,
                 dueDate: tasks.dueDate,
                 position: tasks.position,
                 createdAt: tasks.createdAt,
@@ -128,6 +133,7 @@ export const taskService = {
             })
             .from(tasks)
             .leftJoin(projects, eq(tasks.projectId, projects.id))
+            .leftJoin(users, eq(tasks.assigneeId, users.id))
             .where(eq(tasks.id, id));
 
         if (!task) return null;
@@ -139,6 +145,7 @@ export const taskService = {
                 content: comments.content,
                 authorId: comments.authorId,
                 authorName: users.name,
+                authorAvatarUrl: users.avatarUrl,
                 createdAt: comments.createdAt,
                 updatedAt: comments.updatedAt,
             })

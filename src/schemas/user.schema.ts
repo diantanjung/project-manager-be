@@ -33,6 +33,9 @@ export const updateUserSchema = z.object({
       .string({ message: "Password must be a string" })
       .min(6, { message: "Password must be at least 6 characters" })
       .optional(),
+    avatarUrl: z
+      .string({ message: "Avatar URL must be a string" })
+      .optional(),
   }),
 });
 
