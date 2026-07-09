@@ -22,6 +22,12 @@ export const taskStatusEnum = pgEnum("task_status", [
   "done",
 ]);
 
+export const notificationTypeEnum = pgEnum("notification_type", [
+  "task_assigned",
+  "mention",
+  "system_alert",
+]);
+
 export const taskPriorityEnum = pgEnum("task_priority", [
   "low",
   "medium",
@@ -55,6 +61,8 @@ export const usersRelations = relations(users, ({ many }) => ({
   refreshTokens: many(refreshTokens),
   teamMemberships: many(teamMembers),
   comments: many(comments),
+  receivedNotifications: many(notifications, { relationName: "receivedNotifications" }),
+  triggeredNotifications: many(notifications, { relationName: "triggeredNotifications" }),
 }));
 
 // ============================================================================
@@ -304,5 +312,40 @@ export const attachmentsRelations = relations(attachments, ({ one }) => ({
   uploader: one(users, {
     fields: [attachments.uploaderId],
     references: [users.id],
+  }),
+}));
+
+// ============================================================================
+// Notifications
+// ============================================================================
+
+export const notifications = pgTable("notifications", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }), // The recipient
+  actorId: integer("actor_id")
+    .references(() => users.id, { onDelete: "set null" }), // Who triggered it
+  type: notificationTypeEnum("type").notNull(),
+  taskId: integer("task_id")
+    .references(() => tasks.id, { onDelete: "cascade" }), // Related task, if any
+  isRead: boolean("is_read").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const notificationsRelations = relations(notifications, ({ one }) => ({
+  user: one(users, {
+    fields: [notifications.userId],
+    references: [users.id],
+    relationName: "receivedNotifications",
+  }),
+  actor: one(users, {
+    fields: [notifications.actorId],
+    references: [users.id],
+    relationName: "triggeredNotifications",
+  }),
+  task: one(tasks, {
+    fields: [notifications.taskId],
+    references: [tasks.id],
   }),
 }));

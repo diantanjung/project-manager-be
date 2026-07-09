@@ -20,7 +20,7 @@ export const authController = {
       if (error instanceof Error && error.message === "User already exists") {
         return res.status(409).json({ message: error.message });
       }
-      next(error);
+      return next(error);
     }
   },
 
@@ -42,7 +42,7 @@ export const authController = {
       if (error instanceof Error && error.message === "Invalid credentials") {
         return res.status(401).json({ message: error.message });
       }
-      next(error);
+      return next(error);
     }
   },
 
@@ -82,7 +82,7 @@ export const authController = {
         });
         return res.status(401).json({ message: error.message });
       }
-      next(error);
+      return next(error);
     }
   },
 
@@ -111,7 +111,7 @@ export const authController = {
       ) {
         return res.status(403).json({ message: error.message });
       }
-      next(error);
+      return next(error);
     }
   },
 };

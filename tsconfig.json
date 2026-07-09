@@ -5,6 +5,7 @@
     "lib": ["ES2022", "ESNext"],
     "skipLibCheck": true,
     "sourceMap": true,
+    "rootDir": "./src",
     "outDir": "./dist",
     "moduleResolution": "NodeNext",
     "removeComments": true,
@@ -21,7 +22,6 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "resolveJsonModule": true,
-    "baseUrl": ".",
     "forceConsistentCasingInFileNames": true,
     "strict": true
   },

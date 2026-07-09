@@ -29,7 +29,7 @@ export const projectTeamController = {
 
             return res.status(201).json(result.data);
         } catch (error) {
-            next(error);
+            return next(error);
         }
     },
 
@@ -46,7 +46,7 @@ export const projectTeamController = {
             const teams = await projectTeamService.getProjectTeams(projectId);
             return res.json(teams);
         } catch (error) {
-            next(error);
+            return next(error);
         }
     },
 
@@ -62,7 +62,7 @@ export const projectTeamController = {
             await projectTeamService.removeTeamFromProject(id);
             return res.json({ message: "Team removed from project successfully" });
         } catch (error) {
-            next(error);
+            return next(error);
         }
     },
 };

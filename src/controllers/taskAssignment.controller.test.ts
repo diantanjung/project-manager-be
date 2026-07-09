@@ -42,11 +42,11 @@ describe('taskAssignmentController', () => {
             const mockUser = createUserResponseFixture({ id: 2 });
             const mockAssignment = { id: 1, taskId: 1, userId: 2 };
 
-            vi.mocked(taskService.getTaskById).mockResolvedValue(mockTask);
+            vi.mocked(taskService.getTaskById).mockResolvedValue(mockTask as never);
             vi.mocked(userService.getUserById).mockResolvedValue(mockUser);
             vi.mocked(taskAssignmentService.assignUserToTask).mockResolvedValue({
                 exists: false,
-                data: mockAssignment,
+                data: mockAssignment as never,
             });
 
             const req = createMockRequest({
@@ -79,7 +79,7 @@ describe('taskAssignmentController', () => {
 
         it('should return 404 when user not found', async () => {
             const mockTask = createTaskFixture({ id: 1 });
-            vi.mocked(taskService.getTaskById).mockResolvedValue(mockTask);
+            vi.mocked(taskService.getTaskById).mockResolvedValue(mockTask as never);
             vi.mocked(userService.getUserById).mockResolvedValue(undefined as never);
 
             const req = createMockRequest({
@@ -98,11 +98,11 @@ describe('taskAssignmentController', () => {
             const mockTask = createTaskFixture({ id: 1 });
             const mockUser = createUserResponseFixture({ id: 2 });
 
-            vi.mocked(taskService.getTaskById).mockResolvedValue(mockTask);
+            vi.mocked(taskService.getTaskById).mockResolvedValue(mockTask as never);
             vi.mocked(userService.getUserById).mockResolvedValue(mockUser);
             vi.mocked(taskAssignmentService.assignUserToTask).mockResolvedValue({
                 exists: true,
-            });
+            } as never);
 
             const req = createMockRequest({
                 body: { taskId: 1, userId: 2 },
@@ -125,8 +125,8 @@ describe('taskAssignmentController', () => {
                 { id: 2, taskId: 1, userId: 2 },
             ];
 
-            vi.mocked(taskService.getTaskById).mockResolvedValue(mockTask);
-            vi.mocked(taskAssignmentService.getTaskAssignments).mockResolvedValue(mockAssignments);
+            vi.mocked(taskService.getTaskById).mockResolvedValue(mockTask as never);
+            vi.mocked(taskAssignmentService.getTaskAssignments).mockResolvedValue(mockAssignments as never);
 
             const req = createMockRequest({ params: { taskId: '1' } });
             const res = createMockResponse();
@@ -155,8 +155,8 @@ describe('taskAssignmentController', () => {
     describe('removeAssignment', () => {
         it('should return success message on removal', async () => {
             const mockAssignment = { id: 1, taskId: 1, userId: 2 };
-            vi.mocked(taskAssignmentService.getAssignmentById).mockResolvedValue(mockAssignment);
-            vi.mocked(taskAssignmentService.removeAssignment).mockResolvedValue(mockAssignment);
+            vi.mocked(taskAssignmentService.getAssignmentById).mockResolvedValue(mockAssignment as never);
+            vi.mocked(taskAssignmentService.removeAssignment).mockResolvedValue(mockAssignment as never);
 
             const req = createMockRequest({ params: { id: '1' } });
             const res = createMockResponse();

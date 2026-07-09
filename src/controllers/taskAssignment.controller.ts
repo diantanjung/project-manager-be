@@ -29,7 +29,7 @@ export const taskAssignmentController = {
 
             return res.status(201).json(result.data);
         } catch (error) {
-            next(error);
+            return next(error);
         }
     },
 
@@ -46,7 +46,7 @@ export const taskAssignmentController = {
             const assignments = await taskAssignmentService.getTaskAssignments(taskId);
             return res.json(assignments);
         } catch (error) {
-            next(error);
+            return next(error);
         }
     },
 
@@ -62,7 +62,7 @@ export const taskAssignmentController = {
             await taskAssignmentService.removeAssignment(id);
             return res.json({ message: "Assignment removed successfully" });
         } catch (error) {
-            next(error);
+            return next(error);
         }
     },
 };

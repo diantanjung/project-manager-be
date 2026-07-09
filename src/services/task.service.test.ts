@@ -22,7 +22,7 @@ describe('taskService', () => {
 
     describe('createTask', () => {
         it('should create a new task', async () => {
-            const input = { title: 'Test Task', description: 'A test task', projectId: 1, creatorId: 1 };
+            const input = { title: 'Test Task', description: 'A test task', projectId: 1, creatorId: 1, assigneeId: null as any };
             const createdTask = createTaskFixture({ ...input });
 
             vi.mocked(db.insert).mockReturnValue({

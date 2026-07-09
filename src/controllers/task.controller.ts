@@ -11,7 +11,7 @@ export const taskController = {
             });
             return res.status(201).json(task);
         } catch (error) {
-            next(error);
+            return next(error);
         }
     },
 
@@ -31,7 +31,7 @@ export const taskController = {
             });
             return res.json(result);
         } catch (error) {
-            next(error);
+            return next(error);
         }
     },
 
@@ -43,7 +43,7 @@ export const taskController = {
             }
             return res.json(task);
         } catch (error) {
-            next(error);
+            return next(error);
         }
     },
 
@@ -55,7 +55,7 @@ export const taskController = {
             }
             return res.json(task);
         } catch (error) {
-            next(error);
+            return next(error);
         }
     },
 
@@ -70,7 +70,7 @@ export const taskController = {
             }
             return res.json(task);
         } catch (error) {
-            next(error);
+            return next(error);
         }
     },
 
@@ -82,7 +82,7 @@ export const taskController = {
             }
             return res.json({ message: "Task deleted successfully" });
         } catch (error) {
-            next(error);
+            return next(error);
         }
     },
 };

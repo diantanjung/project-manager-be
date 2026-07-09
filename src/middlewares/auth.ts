@@ -33,7 +33,7 @@ export const authenticate = (
       email: string;
     };
     req.user = decoded;
-    next();
+    return next();
   } catch (error) {
     return res.status(401).json({ message: "Invalid token" });
   }
