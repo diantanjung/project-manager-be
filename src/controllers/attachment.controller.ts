@@ -15,7 +15,7 @@ export const attachmentController = {
             });
             return res.status(201).json(attachment);
         } catch (error) {
-            next(error);
+            return next(error);
         }
     },
 
@@ -26,7 +26,7 @@ export const attachmentController = {
             );
             return res.json(attachments);
         } catch (error) {
-            next(error);
+            return next(error);
         }
     },
 
@@ -40,7 +40,7 @@ export const attachmentController = {
             }
             return res.json(attachment);
         } catch (error) {
-            next(error);
+            return next(error);
         }
     },
 
@@ -61,7 +61,7 @@ export const attachmentController = {
             await attachmentService.deleteAttachment(Number(req.params.id));
             return res.json({ message: "Attachment deleted successfully" });
         } catch (error) {
-            next(error);
+            return next(error);
         }
     },
 };

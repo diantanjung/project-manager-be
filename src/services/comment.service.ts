@@ -1,10 +1,36 @@
 import { eq, desc } from "drizzle-orm";
 import { db } from "../db/index.js";
 import { comments, users } from "../db/schema.js";
+import { notificationService } from "./notification.service.js";
 
 export const commentService = {
     async createComment(data: typeof comments.$inferInsert) {
         const [newComment] = await db.insert(comments).values(data).returning();
+
+        // Parse mentions (@name)
+        const content = data.content;
+        const mentionRegex = /@(\w+)/g;
+        const matches = [...content.matchAll(mentionRegex)];
+        const mentionedNames = matches.map((match) => match[1]);
+
+        if (mentionedNames.length > 0) {
+            for (const name of mentionedNames) {
+                const matchedUser = await db.select({ id: users.id }).from(users).where(eq(users.name, name)).limit(1);
+                if (matchedUser.length > 0) {
+                    const mentionedUserId = matchedUser[0].id;
+                    // Avoid notifying the author themselves
+                    if (mentionedUserId !== data.authorId) {
+                        await notificationService.createNotification({
+                            userId: mentionedUserId,
+                            actorId: data.authorId,
+                            type: "mention",
+                            taskId: data.taskId,
+                        });
+                    }
+                }
+            }
+        }
+
         return newComment;
     },
 

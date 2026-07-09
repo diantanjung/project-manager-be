@@ -188,7 +188,7 @@ describe('teamController', () => {
             const mockTeam = createTeamFixture({ id: 1 });
             const mockMembers = [{ userId: 1, role: 'lead' }];
             vi.mocked(teamService.getTeamById).mockResolvedValue(mockTeam);
-            vi.mocked(teamService.getTeamMembers).mockResolvedValue(mockMembers);
+            vi.mocked(teamService.getTeamMembers).mockResolvedValue(mockMembers as never);
 
             const req = createMockRequest({ params: { id: '1' } });
             const res = createMockResponse();
@@ -220,7 +220,7 @@ describe('teamController', () => {
             const mockTeam = createTeamFixture({ id: 1 });
             const mockMember = { teamId: 1, userId: 2, role: 'member' };
             vi.mocked(teamService.getTeamById).mockResolvedValue(mockTeam);
-            vi.mocked(teamService.addTeamMember).mockResolvedValue(mockMember);
+            vi.mocked(teamService.addTeamMember).mockResolvedValue(mockMember as never);
 
             const req = createMockRequest({
                 params: { id: '1' },
@@ -273,7 +273,7 @@ describe('teamController', () => {
 
     describe('removeTeamMember', () => {
         it('should return success message on removal', async () => {
-            vi.mocked(teamService.removeTeamMember).mockResolvedValue({ teamId: 1, userId: 2, role: 'member' });
+            vi.mocked(teamService.removeTeamMember).mockResolvedValue({ teamId: 1, userId: 2, role: 'member' } as never);
 
             const req = createMockRequest({
                 params: { id: '1', userId: '2' },

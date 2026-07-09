@@ -8,7 +8,7 @@ export const teamController = {
             const team = await teamService.createTeam(req.body);
             return res.status(201).json(team);
         } catch (error) {
-            next(error);
+            return next(error);
         }
     },
 
@@ -21,7 +21,7 @@ export const teamController = {
             });
             return res.json(result);
         } catch (error) {
-            next(error);
+            return next(error);
         }
     },
 
@@ -33,7 +33,7 @@ export const teamController = {
             }
             return res.json(team);
         } catch (error) {
-            next(error);
+            return next(error);
         }
     },
 
@@ -45,7 +45,7 @@ export const teamController = {
             }
             return res.json(team);
         } catch (error) {
-            next(error);
+            return next(error);
         }
     },
 
@@ -57,7 +57,7 @@ export const teamController = {
             }
             return res.json({ message: "Team deleted successfully" });
         } catch (error) {
-            next(error);
+            return next(error);
         }
     },
 
@@ -70,7 +70,7 @@ export const teamController = {
             const members = await teamService.getTeamMembers(Number(req.params.id));
             return res.json(members);
         } catch (error) {
-            next(error);
+            return next(error);
         }
     },
 
@@ -90,7 +90,7 @@ export const teamController = {
             }
             return res.status(201).json(result);
         } catch (error) {
-            next(error);
+            return next(error);
         }
     },
 
@@ -105,7 +105,7 @@ export const teamController = {
             }
             return res.json({ message: "Member removed from team" });
         } catch (error) {
-            next(error);
+            return next(error);
         }
     },
 };

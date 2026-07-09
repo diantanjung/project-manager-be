@@ -208,7 +208,7 @@ describe('projectController', () => {
                 pagination: { page: 1, limit: 10, totalItems: 1, totalPages: 1 },
             };
             vi.mocked(projectService.getProjectById).mockResolvedValue(mockProject);
-            vi.mocked(projectService.getProjectTasks).mockResolvedValue(mockTaskResult);
+            vi.mocked(projectService.getProjectTasks).mockResolvedValue(mockTaskResult as never);
 
             const req = createMockRequest({
                 params: { id: '1' },
@@ -243,7 +243,7 @@ describe('projectController', () => {
             const mockProject = createProjectFixture({ id: 1 });
             const mockTeams = [{ id: 1, name: 'Team 1' }];
             vi.mocked(projectService.getProjectById).mockResolvedValue(mockProject);
-            vi.mocked(projectTeamService.getProjectTeams).mockResolvedValue(mockTeams);
+            vi.mocked(projectTeamService.getProjectTeams).mockResolvedValue(mockTeams as never);
 
             const req = createMockRequest({ params: { id: '1' } });
             const res = createMockResponse();

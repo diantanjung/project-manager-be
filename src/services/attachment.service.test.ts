@@ -21,7 +21,7 @@ describe('attachmentService', () => {
 
     describe('createAttachment', () => {
         it('should create a new attachment', async () => {
-            const input = { fileName: 'test.pdf', fileUrl: '/uploads/test.pdf', taskId: 1, uploadedBy: 1 };
+            const input = { fileName: 'test.pdf', fileUrl: '/uploads/test.pdf', taskId: 1, uploaderId: 1 };
             const createdAttachment = createAttachmentFixture({ ...input });
 
             vi.mocked(db.insert).mockReturnValue({

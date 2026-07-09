@@ -12,7 +12,7 @@ export const projectController = {
             });
             return res.status(201).json(project);
         } catch (error) {
-            next(error);
+            return next(error);
         }
     },
 
@@ -29,7 +29,7 @@ export const projectController = {
             });
             return res.json(result);
         } catch (error) {
-            next(error);
+            return next(error);
         }
     },
 
@@ -41,7 +41,7 @@ export const projectController = {
             }
             return res.json(project);
         } catch (error) {
-            next(error);
+            return next(error);
         }
     },
 
@@ -56,7 +56,7 @@ export const projectController = {
             }
             return res.json(project);
         } catch (error) {
-            next(error);
+            return next(error);
         }
     },
 
@@ -68,7 +68,7 @@ export const projectController = {
             }
             return res.json({ message: "Project deleted successfully" });
         } catch (error) {
-            next(error);
+            return next(error);
         }
     },
 
@@ -86,7 +86,7 @@ export const projectController = {
             });
             return res.json(result);
         } catch (error) {
-            next(error);
+            return next(error);
         }
     },
 
@@ -100,7 +100,7 @@ export const projectController = {
             const teams = await projectTeamService.getProjectTeams(Number(req.params.id));
             return res.json(teams);
         } catch (error) {
-            next(error);
+            return next(error);
         }
     },
 };

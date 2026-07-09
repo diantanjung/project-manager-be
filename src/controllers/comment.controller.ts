@@ -12,7 +12,7 @@ export const commentController = {
             });
             return res.status(201).json(comment);
         } catch (error) {
-            next(error);
+            return next(error);
         }
     },
 
@@ -23,7 +23,7 @@ export const commentController = {
             );
             return res.json(comments);
         } catch (error) {
-            next(error);
+            return next(error);
         }
     },
 
@@ -45,7 +45,7 @@ export const commentController = {
             );
             return res.json(updatedComment);
         } catch (error) {
-            next(error);
+            return next(error);
         }
     },
 
@@ -64,7 +64,7 @@ export const commentController = {
             await commentService.deleteComment(Number(req.params.id));
             return res.json({ message: "Comment deleted successfully" });
         } catch (error) {
-            next(error);
+            return next(error);
         }
     },
 };

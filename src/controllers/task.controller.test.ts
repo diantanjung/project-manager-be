@@ -26,7 +26,7 @@ describe('taskController', () => {
     describe('createTask', () => {
         it('should return 201 and created task with creatorId from user', async () => {
             const mockTask = createTaskFixture();
-            vi.mocked(taskService.createTask).mockResolvedValue(mockTask);
+            vi.mocked(taskService.createTask).mockResolvedValue(mockTask as never);
 
             const req = createMockRequest({
                 body: createTaskInput,
@@ -65,7 +65,7 @@ describe('taskController', () => {
                 data: [createTaskFixture()],
                 pagination: { page: 1, limit: 10, totalItems: 1, totalPages: 1 },
             };
-            vi.mocked(taskService.getAllTasks).mockResolvedValue(mockResult);
+            vi.mocked(taskService.getAllTasks).mockResolvedValue(mockResult as never);
 
             const req = createMockRequest({
                 query: {
@@ -116,7 +116,7 @@ describe('taskController', () => {
     describe('getTaskById', () => {
         it('should return task when found', async () => {
             const mockTask = createTaskFixture({ id: 1 });
-            vi.mocked(taskService.getTaskById).mockResolvedValue(mockTask);
+            vi.mocked(taskService.getTaskById).mockResolvedValue(mockTask as never);
 
             const req = createMockRequest({ params: { id: '1' } });
             const res = createMockResponse();
@@ -145,7 +145,7 @@ describe('taskController', () => {
     describe('updateTask', () => {
         it('should return updated task on success', async () => {
             const mockTask = createTaskFixture({ id: 1, title: 'Updated Task' });
-            vi.mocked(taskService.updateTask).mockResolvedValue(mockTask);
+            vi.mocked(taskService.updateTask).mockResolvedValue(mockTask as never);
 
             const req = createMockRequest({
                 params: { id: '1' },
@@ -180,7 +180,7 @@ describe('taskController', () => {
     describe('updateTaskStatus', () => {
         it('should return updated task on success', async () => {
             const mockTask = createTaskFixture({ id: 1, status: 'in_progress' });
-            vi.mocked(taskService.updateTaskStatus).mockResolvedValue(mockTask);
+            vi.mocked(taskService.updateTaskStatus).mockResolvedValue(mockTask as never);
 
             const req = createMockRequest({
                 params: { id: '1' },
@@ -215,7 +215,7 @@ describe('taskController', () => {
     describe('deleteTask', () => {
         it('should return success message on delete', async () => {
             const mockTask = createTaskFixture({ id: 1 });
-            vi.mocked(taskService.deleteTask).mockResolvedValue(mockTask);
+            vi.mocked(taskService.deleteTask).mockResolvedValue(mockTask as never);
 
             const req = createMockRequest({ params: { id: '1' } });
             const res = createMockResponse();

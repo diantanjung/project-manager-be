@@ -11,7 +11,7 @@ export const validate =
           params: req.params,
         }) as any;
         req.body = parsed.body || req.body;
-        next();
+        return next();
       } catch (error) {
         if (error instanceof ZodError) {
           const errorMessage = error.issues
@@ -22,6 +22,6 @@ export const validate =
             errors: error.issues,
           });
         }
-        next(error);
+        return next(error);
       }
     };

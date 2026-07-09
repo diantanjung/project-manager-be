@@ -1,6 +1,7 @@
 import { eq, and } from "drizzle-orm";
 import { db } from "../db/index.js";
 import { taskAssignments, users } from "../db/schema.js";
+import { notificationService } from "./notification.service.js";
 
 export const taskAssignmentService = {
     async assignUserToTask(taskId: number, userId: number) {
@@ -23,6 +24,14 @@ export const taskAssignmentService = {
             .insert(taskAssignments)
             .values({ taskId, userId })
             .returning();
+
+        // Get the task details to find the actor (we can just say actor is the one who did the action, but taskAssignmentService doesn't receive actorId. Let's just create a generic notification for now without actorId, or we can fetch task details.)
+        // Actually, we don't have req.user here. We'll leave actorId as null for now, or just send a notification without it.
+        await notificationService.createNotification({
+            userId: userId,
+            type: "task_assigned",
+            taskId: taskId,
+        });
 
         return { exists: false, data: assignment };
     },

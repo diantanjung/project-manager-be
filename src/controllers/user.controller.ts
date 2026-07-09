@@ -11,7 +11,7 @@ export const userController = {
       if (error.code === '23505' || error?.cause?.code === '23505') {
         return res.status(409).json({ message: 'Email is already in use' });
       }
-      next(error);
+      return next(error);
     }
   },
 
@@ -30,7 +30,7 @@ export const userController = {
 
       return res.json(result);
     } catch (error) {
-      next(error);
+      return next(error);
     }
   },
 
@@ -42,7 +42,7 @@ export const userController = {
       }
       return res.json(user);
     } catch (error) {
-      next(error);
+      return next(error);
     }
   },
 
@@ -60,7 +60,7 @@ export const userController = {
       if (error.code === '23505' || error?.cause?.code === '23505') {
         return res.status(409).json({ message: 'Email is already in use' });
       }
-      next(error);
+      return next(error);
     }
   },
 
@@ -72,7 +72,7 @@ export const userController = {
       }
       return res.json({ message: "User deleted successfully" });
     } catch (error) {
-      next(error);
+      return next(error);
     }
   },
 
@@ -94,7 +94,7 @@ export const userController = {
 
       return res.json(result);
     } catch (error) {
-      next(error);
+      return next(error);
     }
   },
 };
