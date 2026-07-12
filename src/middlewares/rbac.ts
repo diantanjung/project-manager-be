@@ -29,6 +29,7 @@ export const requireRole = (...allowedRoles: UserRole[]) => {
             }
 
             const userRole = user.role as UserRole;
+            req.user.role = userRole;
 
             // Check if user's role is in the allowed roles
             if (!allowedRoles.includes(userRole)) {

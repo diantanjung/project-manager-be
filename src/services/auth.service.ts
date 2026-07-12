@@ -40,7 +40,7 @@ export const authService = {
       throw new Error("Invalid credentials");
     }
 
-    const accessToken = this.generateAccessToken(user.id, user.email);
+    const accessToken = this.generateAccessToken(user.id, user.email, user.role);
     const refreshToken = this.generateRefreshToken(user.id, user.email);
 
     await this.saveRefreshToken(user.id, refreshToken);
@@ -49,8 +49,8 @@ export const authService = {
 
     return { user: userWithoutPassword, accessToken, refreshToken };
   },
-  generateAccessToken(id: number, email: string) {
-    return jwt.sign({ id, email, type: "access" }, env.JWT_SECRET, {
+  generateAccessToken(id: number, email: string, role?: string) {
+    return jwt.sign({ id, email, role, type: "access" }, env.JWT_SECRET, {
       expiresIn: env.JWT_EXPIRES_IN as jwt.SignOptions["expiresIn"],
     });
   },
@@ -126,7 +126,7 @@ export const authService = {
     if (!user) {
       throw new Error("Invalid refresh token");
     }
-    const newAccessToken = this.generateAccessToken(user.id, user.email);
+    const newAccessToken = this.generateAccessToken(user.id, user.email, user.role);
 
     // Token rotation: revoke old token and issue new one
     await this.revokeRefreshToken(refreshToken);

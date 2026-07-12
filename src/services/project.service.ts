@@ -1,6 +1,7 @@
 import { eq, count, ilike, or, asc, desc, SQL, and } from "drizzle-orm";
 import { db } from "../db/index.js";
 import { projects, tasks, teams, users } from "../db/schema.js";
+import { AuthUser, authorizationService } from "./authorization.service.js";
 
 export interface ProjectPaginationOptions {
     page?: number;
@@ -17,7 +18,7 @@ export const projectService = {
         return newProject;
     },
 
-    async getAllProjects(options: ProjectPaginationOptions = {}) {
+    async getAllProjects(options: ProjectPaginationOptions = {}, currentUser?: AuthUser) {
         const {
             page = 1,
             limit = 10,
@@ -41,6 +42,10 @@ export const projectService = {
         }
         if (teamId) {
             filters.push(eq(projects.teamId, teamId));
+        }
+        if (currentUser) {
+            const accessFilter = authorizationService.projectAccessWhere(currentUser);
+            if (accessFilter) filters.push(accessFilter);
         }
 
         const whereClause = filters.length > 0 ? and(...filters) : undefined;
@@ -84,7 +89,13 @@ export const projectService = {
         };
     },
 
-    async getProjectById(id: number) {
+    async getProjectById(id: number, currentUser?: AuthUser) {
+        const filters: SQL[] = [eq(projects.id, id)];
+        if (currentUser) {
+            const accessFilter = authorizationService.projectAccessWhere(currentUser);
+            if (accessFilter) filters.push(accessFilter);
+        }
+
         const [project] = await db
             .select({
                 id: projects.id,
@@ -100,7 +111,7 @@ export const projectService = {
             .from(projects)
             .leftJoin(teams, eq(projects.teamId, teams.id))
             .leftJoin(users, eq(projects.ownerId, users.id))
-            .where(eq(projects.id, id));
+            .where(and(...filters));
         return project;
     },
 
@@ -121,19 +132,29 @@ export const projectService = {
         return deletedProject;
     },
 
-    async getProjectTasks(projectId: number, options: { page?: number; limit?: number } = {}) {
+    async getProjectTasks(
+        projectId: number,
+        options: { page?: number; limit?: number } = {},
+        currentUser?: AuthUser
+    ) {
         const { page = 1, limit = 10 } = options;
         const offset = (page - 1) * limit;
+        const filters: SQL[] = [eq(tasks.projectId, projectId)];
+        if (currentUser) {
+            const accessFilter = authorizationService.taskAccessWhere(currentUser);
+            if (accessFilter) filters.push(accessFilter);
+        }
+        const whereClause = and(...filters);
 
         const [{ total }] = await db
             .select({ total: count() })
             .from(tasks)
-            .where(eq(tasks.projectId, projectId));
+            .where(whereClause);
 
         const data = await db
             .select()
             .from(tasks)
-            .where(eq(tasks.projectId, projectId))
+            .where(whereClause)
             .orderBy(desc(tasks.createdAt))
             .limit(limit)
             .offset(offset);

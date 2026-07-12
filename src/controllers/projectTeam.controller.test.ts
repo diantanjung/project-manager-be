@@ -94,7 +94,7 @@ describe('projectTeamController', () => {
             expect(res.json).toHaveBeenCalledWith({ message: 'Team not found' });
         });
 
-        it('should return 400 when team already assigned', async () => {
+        it('should return 409 when team already assigned', async () => {
             const mockProject = createProjectFixture({ id: 1 });
             const mockTeam = createTeamFixture({ id: 2 });
 
@@ -113,7 +113,7 @@ describe('projectTeamController', () => {
 
             await projectTeamController.assignTeamToProject(req, res, next);
 
-            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.status).toHaveBeenCalledWith(409);
             expect(res.json).toHaveBeenCalledWith({ message: 'Team already assigned to this project' });
         });
     });

@@ -85,17 +85,20 @@ describe('taskController', () => {
 
             await taskController.getAllTasks(req, res, next);
 
-            expect(taskService.getAllTasks).toHaveBeenCalledWith({
-                page: 1,
-                limit: 10,
-                search: 'test',
-                projectId: 1,
-                status: 'todo',
-                priority: 'high',
-                assigneeId: 2,
-                sortBy: 'title',
-                order: 'asc',
-            });
+            expect(taskService.getAllTasks).toHaveBeenCalledWith(
+                {
+                    page: 1,
+                    limit: 10,
+                    search: 'test',
+                    projectId: 1,
+                    status: 'todo',
+                    priority: 'high',
+                    assigneeId: 2,
+                    sortBy: 'title',
+                    order: 'asc',
+                },
+                expect.objectContaining({ id: 1 })
+            );
             expect(res.json).toHaveBeenCalledWith(mockResult);
         });
 
@@ -124,7 +127,7 @@ describe('taskController', () => {
 
             await taskController.getTaskById(req, res, next);
 
-            expect(taskService.getTaskById).toHaveBeenCalledWith(1);
+            expect(taskService.getTaskById).toHaveBeenCalledWith(1, expect.objectContaining({ id: 1 }));
             expect(res.json).toHaveBeenCalledWith(mockTask);
         });
 
@@ -145,6 +148,7 @@ describe('taskController', () => {
     describe('updateTask', () => {
         it('should return updated task on success', async () => {
             const mockTask = createTaskFixture({ id: 1, title: 'Updated Task' });
+            vi.mocked(taskService.getTaskById).mockResolvedValue(mockTask as never);
             vi.mocked(taskService.updateTask).mockResolvedValue(mockTask as never);
 
             const req = createMockRequest({
@@ -161,6 +165,7 @@ describe('taskController', () => {
         });
 
         it('should return 404 when task not found', async () => {
+            vi.mocked(taskService.getTaskById).mockResolvedValue(undefined as never);
             vi.mocked(taskService.updateTask).mockResolvedValue(undefined as never);
 
             const req = createMockRequest({
@@ -180,6 +185,7 @@ describe('taskController', () => {
     describe('updateTaskStatus', () => {
         it('should return updated task on success', async () => {
             const mockTask = createTaskFixture({ id: 1, status: 'in_progress' });
+            vi.mocked(taskService.getTaskById).mockResolvedValue(mockTask as never);
             vi.mocked(taskService.updateTaskStatus).mockResolvedValue(mockTask as never);
 
             const req = createMockRequest({
@@ -196,6 +202,7 @@ describe('taskController', () => {
         });
 
         it('should return 404 when task not found', async () => {
+            vi.mocked(taskService.getTaskById).mockResolvedValue(undefined as never);
             vi.mocked(taskService.updateTaskStatus).mockResolvedValue(undefined as never);
 
             const req = createMockRequest({
@@ -215,6 +222,7 @@ describe('taskController', () => {
     describe('deleteTask', () => {
         it('should return success message on delete', async () => {
             const mockTask = createTaskFixture({ id: 1 });
+            vi.mocked(taskService.getTaskById).mockResolvedValue(mockTask as never);
             vi.mocked(taskService.deleteTask).mockResolvedValue(mockTask as never);
 
             const req = createMockRequest({ params: { id: '1' } });
@@ -228,6 +236,7 @@ describe('taskController', () => {
         });
 
         it('should return 404 when task not found', async () => {
+            vi.mocked(taskService.getTaskById).mockResolvedValue(undefined as never);
             vi.mocked(taskService.deleteTask).mockResolvedValue(undefined as never);
 
             const req = createMockRequest({ params: { id: '999' } });

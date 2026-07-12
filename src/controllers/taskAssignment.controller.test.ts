@@ -94,7 +94,7 @@ describe('taskAssignmentController', () => {
             expect(res.json).toHaveBeenCalledWith({ message: 'User not found' });
         });
 
-        it('should return 400 when user already assigned', async () => {
+        it('should return 409 when user already assigned', async () => {
             const mockTask = createTaskFixture({ id: 1 });
             const mockUser = createUserResponseFixture({ id: 2 });
 
@@ -112,7 +112,7 @@ describe('taskAssignmentController', () => {
 
             await taskAssignmentController.assignUserToTask(req, res, next);
 
-            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.status).toHaveBeenCalledWith(409);
             expect(res.json).toHaveBeenCalledWith({ message: 'User already assigned to this task' });
         });
     });

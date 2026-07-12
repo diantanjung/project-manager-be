@@ -86,7 +86,7 @@ export const teamController = {
                 req.body.role
             );
             if ("error" in result) {
-                return res.status(400).json({ message: result.error });
+                return res.status(409).json({ message: result.error });
             }
             return res.status(201).json(result);
         } catch (error) {

@@ -5,9 +5,12 @@ import { AuthRequest } from "../middlewares/auth.js";
 export const taskController = {
     async createTask(req: AuthRequest, res: Response, next: NextFunction) {
         try {
+            if (!req.user) {
+                return res.status(401).json({ message: "Authentication required" });
+            }
             const task = await taskService.createTask({
                 ...req.body,
-                creatorId: req.user?.id,
+                creatorId: req.user.id,
             });
             return res.status(201).json(task);
         } catch (error) {
@@ -18,6 +21,9 @@ export const taskController = {
     async getAllTasks(req: AuthRequest, res: Response, next: NextFunction) {
         try {
             const { page, limit, search, projectId, status, priority, assigneeId, sortBy, order } = req.query;
+            if (!req.user) {
+                return res.status(401).json({ message: "Authentication required" });
+            }
             const result = await taskService.getAllTasks({
                 page: page ? Number(page) : undefined,
                 limit: limit ? Number(limit) : undefined,
@@ -28,7 +34,7 @@ export const taskController = {
                 assigneeId: assigneeId ? Number(assigneeId) : undefined,
                 sortBy: sortBy as "title" | "createdAt" | "updatedAt" | "dueDate" | "priority" | undefined,
                 order: order as "asc" | "desc" | undefined,
-            });
+            }, req.user);
             return res.json(result);
         } catch (error) {
             return next(error);
@@ -37,7 +43,10 @@ export const taskController = {
 
     async getTaskById(req: AuthRequest, res: Response, next: NextFunction) {
         try {
-            const task = await taskService.getTaskById(Number(req.params.id));
+            if (!req.user) {
+                return res.status(401).json({ message: "Authentication required" });
+            }
+            const task = await taskService.getTaskById(Number(req.params.id), req.user);
             if (!task) {
                 return res.status(404).json({ message: "Task not found" });
             }
@@ -49,10 +58,14 @@ export const taskController = {
 
     async updateTask(req: AuthRequest, res: Response, next: NextFunction) {
         try {
-            const task = await taskService.updateTask(Number(req.params.id), req.body);
-            if (!task) {
+            if (!req.user) {
+                return res.status(401).json({ message: "Authentication required" });
+            }
+            const existingTask = await taskService.getTaskById(Number(req.params.id), req.user);
+            if (!existingTask) {
                 return res.status(404).json({ message: "Task not found" });
             }
+            const task = await taskService.updateTask(Number(req.params.id), req.body);
             return res.json(task);
         } catch (error) {
             return next(error);
@@ -61,13 +74,17 @@ export const taskController = {
 
     async updateTaskStatus(req: AuthRequest, res: Response, next: NextFunction) {
         try {
+            if (!req.user) {
+                return res.status(401).json({ message: "Authentication required" });
+            }
+            const existingTask = await taskService.getTaskById(Number(req.params.id), req.user);
+            if (!existingTask) {
+                return res.status(404).json({ message: "Task not found" });
+            }
             const task = await taskService.updateTaskStatus(
                 Number(req.params.id),
                 req.body.status
             );
-            if (!task) {
-                return res.status(404).json({ message: "Task not found" });
-            }
             return res.json(task);
         } catch (error) {
             return next(error);
@@ -76,10 +93,14 @@ export const taskController = {
 
     async deleteTask(req: AuthRequest, res: Response, next: NextFunction) {
         try {
-            const task = await taskService.deleteTask(Number(req.params.id));
-            if (!task) {
+            if (!req.user) {
+                return res.status(401).json({ message: "Authentication required" });
+            }
+            const existingTask = await taskService.getTaskById(Number(req.params.id), req.user);
+            if (!existingTask) {
                 return res.status(404).json({ message: "Task not found" });
             }
+            await taskService.deleteTask(Number(req.params.id));
             return res.json({ message: "Task deleted successfully" });
         } catch (error) {
             return next(error);

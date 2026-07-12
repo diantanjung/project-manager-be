@@ -8,9 +8,12 @@ export const taskAssignmentController = {
     async assignUserToTask(req: AuthRequest, res: Response, next: NextFunction) {
         try {
             const { taskId, userId } = req.body;
+            if (!req.user) {
+                return res.status(401).json({ message: "Authentication required" });
+            }
 
             // Verify task exists
-            const task = await taskService.getTaskById(taskId);
+            const task = await taskService.getTaskById(taskId, req.user);
             if (!task) {
                 return res.status(404).json({ message: "Task not found" });
             }
@@ -24,7 +27,7 @@ export const taskAssignmentController = {
             const result = await taskAssignmentService.assignUserToTask(taskId, userId);
 
             if (result.exists) {
-                return res.status(400).json({ message: "User already assigned to this task" });
+                return res.status(409).json({ message: "User already assigned to this task" });
             }
 
             return res.status(201).json(result.data);
@@ -36,9 +39,12 @@ export const taskAssignmentController = {
     async getTaskAssignments(req: AuthRequest, res: Response, next: NextFunction) {
         try {
             const taskId = Number(req.params.taskId);
+            if (!req.user) {
+                return res.status(401).json({ message: "Authentication required" });
+            }
 
             // Verify task exists
-            const task = await taskService.getTaskById(taskId);
+            const task = await taskService.getTaskById(taskId, req.user);
             if (!task) {
                 return res.status(404).json({ message: "Task not found" });
             }
