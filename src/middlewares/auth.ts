@@ -31,6 +31,7 @@ export const authenticate = (
     const decoded = jwt.verify(token, env.JWT_SECRET) as {
       id: number;
       email: string;
+      role?: string;
     };
     req.user = decoded;
     return next();

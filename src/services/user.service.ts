@@ -122,7 +122,14 @@ export const userService = {
       .update(users)
       .set({ ...data, updatedAt: new Date() })
       .where(eq(users.id, id))
-      .returning();
+      .returning({
+        id: users.id,
+        name: users.name,
+        email: users.email,
+        role: users.role,
+        createdAt: users.createdAt,
+        updatedAt: users.updatedAt,
+      });
     return updatedUser;
   },
 
@@ -130,7 +137,14 @@ export const userService = {
     const [deletedUser] = await db
       .delete(users)
       .where(eq(users.id, id))
-      .returning();
+      .returning({
+        id: users.id,
+        name: users.name,
+        email: users.email,
+        role: users.role,
+        createdAt: users.createdAt,
+        updatedAt: users.updatedAt,
+      });
     return deletedUser;
   },
 

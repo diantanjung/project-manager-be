@@ -8,9 +8,12 @@ export const projectTeamController = {
     async assignTeamToProject(req: AuthRequest, res: Response, next: NextFunction) {
         try {
             const { projectId, teamId } = req.body;
+            if (!req.user) {
+                return res.status(401).json({ message: "Authentication required" });
+            }
 
             // Verify project exists
-            const project = await projectService.getProjectById(projectId);
+            const project = await projectService.getProjectById(projectId, req.user);
             if (!project) {
                 return res.status(404).json({ message: "Project not found" });
             }
@@ -24,7 +27,7 @@ export const projectTeamController = {
             const result = await projectTeamService.assignTeamToProject(projectId, teamId);
 
             if (result.exists) {
-                return res.status(400).json({ message: "Team already assigned to this project" });
+                return res.status(409).json({ message: "Team already assigned to this project" });
             }
 
             return res.status(201).json(result.data);
@@ -36,9 +39,12 @@ export const projectTeamController = {
     async getProjectTeams(req: AuthRequest, res: Response, next: NextFunction) {
         try {
             const projectId = Number(req.params.projectId);
+            if (!req.user) {
+                return res.status(401).json({ message: "Authentication required" });
+            }
 
             // Verify project exists
-            const project = await projectService.getProjectById(projectId);
+            const project = await projectService.getProjectById(projectId, req.user);
             if (!project) {
                 return res.status(404).json({ message: "Project not found" });
             }

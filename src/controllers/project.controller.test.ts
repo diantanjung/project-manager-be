@@ -20,14 +20,24 @@ vi.mock('../services/projectTeam.service.js', () => ({
     },
 }));
 
+vi.mock('../services/authorization.service.js', () => ({
+    authorizationService: {
+        canCreateProjectForTeam: vi.fn().mockResolvedValue(true),
+        canManageProject: vi.fn().mockReturnValue(true),
+    },
+}));
+
 // Import after mocking
 import { projectController } from './project.controller.js';
 import { projectService } from '../services/project.service.js';
 import { projectTeamService } from '../services/projectTeam.service.js';
+import { authorizationService } from '../services/authorization.service.js';
 
 describe('projectController', () => {
     beforeEach(() => {
         vi.clearAllMocks();
+        vi.mocked(authorizationService.canCreateProjectForTeam).mockResolvedValue(true);
+        vi.mocked(authorizationService.canManageProject).mockReturnValue(true);
     });
 
     describe('createProject', () => {
@@ -82,14 +92,17 @@ describe('projectController', () => {
 
             await projectController.getAllProjects(req, res, next);
 
-            expect(projectService.getAllProjects).toHaveBeenCalledWith({
-                page: 1,
-                limit: 10,
-                search: 'test',
-                teamId: 1,
-                sortBy: 'name',
-                order: 'asc',
-            });
+            expect(projectService.getAllProjects).toHaveBeenCalledWith(
+                {
+                    page: 1,
+                    limit: 10,
+                    search: 'test',
+                    teamId: 1,
+                    sortBy: 'name',
+                    order: 'asc',
+                },
+                expect.objectContaining({ id: 1 })
+            );
             expect(res.json).toHaveBeenCalledWith(mockResult);
         });
 
@@ -118,7 +131,7 @@ describe('projectController', () => {
 
             await projectController.getProjectById(req, res, next);
 
-            expect(projectService.getProjectById).toHaveBeenCalledWith(1);
+            expect(projectService.getProjectById).toHaveBeenCalledWith(1, expect.objectContaining({ id: 1 }));
             expect(res.json).toHaveBeenCalledWith(mockProject);
         });
 
@@ -139,6 +152,7 @@ describe('projectController', () => {
     describe('updateProject', () => {
         it('should return updated project on success', async () => {
             const mockProject = createProjectFixture({ id: 1, name: 'Updated Project' });
+            vi.mocked(projectService.getProjectById).mockResolvedValue(mockProject);
             vi.mocked(projectService.updateProject).mockResolvedValue(mockProject);
 
             const req = createMockRequest({
@@ -155,7 +169,7 @@ describe('projectController', () => {
         });
 
         it('should return 404 when project not found', async () => {
-            vi.mocked(projectService.updateProject).mockResolvedValue(undefined as never);
+            vi.mocked(projectService.getProjectById).mockResolvedValue(undefined as never);
 
             const req = createMockRequest({
                 params: { id: '999' },
@@ -174,6 +188,7 @@ describe('projectController', () => {
     describe('deleteProject', () => {
         it('should return success message on delete', async () => {
             const mockProject = createProjectFixture({ id: 1 });
+            vi.mocked(projectService.getProjectById).mockResolvedValue(mockProject);
             vi.mocked(projectService.deleteProject).mockResolvedValue(mockProject);
 
             const req = createMockRequest({ params: { id: '1' } });
@@ -187,7 +202,7 @@ describe('projectController', () => {
         });
 
         it('should return 404 when project not found', async () => {
-            vi.mocked(projectService.deleteProject).mockResolvedValue(undefined as never);
+            vi.mocked(projectService.getProjectById).mockResolvedValue(undefined as never);
 
             const req = createMockRequest({ params: { id: '999' } });
             const res = createMockResponse();
@@ -219,8 +234,8 @@ describe('projectController', () => {
 
             await projectController.getProjectTasks(req, res, next);
 
-            expect(projectService.getProjectById).toHaveBeenCalledWith(1);
-            expect(projectService.getProjectTasks).toHaveBeenCalledWith(1, { page: 1, limit: 10 });
+            expect(projectService.getProjectById).toHaveBeenCalledWith(1, expect.objectContaining({ id: 1 }));
+            expect(projectService.getProjectTasks).toHaveBeenCalledWith(1, { page: 1, limit: 10 }, expect.objectContaining({ id: 1 }));
             expect(res.json).toHaveBeenCalledWith(mockTaskResult);
         });
 
@@ -251,7 +266,7 @@ describe('projectController', () => {
 
             await projectController.getProjectTeams(req, res, next);
 
-            expect(projectService.getProjectById).toHaveBeenCalledWith(1);
+            expect(projectService.getProjectById).toHaveBeenCalledWith(1, expect.objectContaining({ id: 1 }));
             expect(projectTeamService.getProjectTeams).toHaveBeenCalledWith(1);
             expect(res.json).toHaveBeenCalledWith(mockTeams);
         });

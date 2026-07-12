@@ -1,6 +1,7 @@
 import { eq, count, ilike, or, asc, desc, SQL, and } from "drizzle-orm";
 import { db } from "../db/index.js";
 import { tasks, projects, users, comments, attachments } from "../db/schema.js";
+import { AuthUser, authorizationService } from "./authorization.service.js";
 
 export interface TaskPaginationOptions {
     page?: number;
@@ -20,7 +21,7 @@ export const taskService = {
         return newTask;
     },
 
-    async getAllTasks(options: TaskPaginationOptions = {}) {
+    async getAllTasks(options: TaskPaginationOptions = {}, currentUser?: AuthUser) {
         const {
             page = 1,
             limit = 10,
@@ -56,6 +57,10 @@ export const taskService = {
         }
         if (assigneeId) {
             filters.push(eq(tasks.assigneeId, assigneeId));
+        }
+        if (currentUser) {
+            const accessFilter = authorizationService.taskAccessWhere(currentUser);
+            if (accessFilter) filters.push(accessFilter);
         }
 
         const whereClause = filters.length > 0 ? and(...filters) : undefined;
@@ -112,7 +117,13 @@ export const taskService = {
         };
     },
 
-    async getTaskById(id: number) {
+    async getTaskById(id: number, currentUser?: AuthUser) {
+        const filters: SQL[] = [eq(tasks.id, id)];
+        if (currentUser) {
+            const accessFilter = authorizationService.taskAccessWhere(currentUser);
+            if (accessFilter) filters.push(accessFilter);
+        }
+
         const [task] = await db
             .select({
                 id: tasks.id,
@@ -134,7 +145,7 @@ export const taskService = {
             .from(tasks)
             .leftJoin(projects, eq(tasks.projectId, projects.id))
             .leftJoin(users, eq(tasks.assigneeId, users.id))
-            .where(eq(tasks.id, id));
+            .where(and(...filters));
 
         if (!task) return null;
 

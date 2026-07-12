@@ -48,6 +48,15 @@ export const userController = {
 
   async updateUser(req: AuthRequest, res: Response, next: NextFunction) {
     try {
+      if ("role" in req.body) {
+        if (!req.user) {
+          return res.status(401).json({ message: "Authentication required" });
+        }
+        const actor = await userService.getUserById(req.user.id);
+        if (actor?.role !== "admin") {
+          return res.status(403).json({ message: "Only admins can change user roles" });
+        }
+      }
       const user = await userService.updateUser(
         Number(req.params.id),
         req.body

@@ -252,7 +252,7 @@ describe('teamController', () => {
             expect(res.json).toHaveBeenCalledWith({ message: 'Team not found' });
         });
 
-        it('should return 400 when user already a member', async () => {
+        it('should return 409 when user already a member', async () => {
             const mockTeam = createTeamFixture({ id: 1 });
             vi.mocked(teamService.getTeamById).mockResolvedValue(mockTeam);
             vi.mocked(teamService.addTeamMember).mockResolvedValue({ error: 'User is already a team member' });
@@ -266,7 +266,7 @@ describe('teamController', () => {
 
             await teamController.addTeamMember(req, res, next);
 
-            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.status).toHaveBeenCalledWith(409);
             expect(res.json).toHaveBeenCalledWith({ message: 'User is already a team member' });
         });
     });

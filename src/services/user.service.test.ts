@@ -89,11 +89,12 @@ describe('userService', () => {
     describe('updateUser', () => {
         it('should update user without rehashing if password not provided', async () => {
             const updatedUser = createUserFixture({ id: 1, name: 'Updated Name' });
+            const { password: _, ...updatedUserWithoutPassword } = updatedUser;
 
             vi.mocked(db.update).mockReturnValue({
                 set: vi.fn().mockReturnValue({
                     where: vi.fn().mockReturnValue({
-                        returning: vi.fn().mockResolvedValue([updatedUser]),
+                        returning: vi.fn().mockResolvedValue([updatedUserWithoutPassword]),
                     }),
                 }),
             } as never);
@@ -101,23 +102,26 @@ describe('userService', () => {
             const result = await userService.updateUser(1, { name: 'Updated Name' });
 
             expect(bcrypt.hash).not.toHaveBeenCalled();
-            expect(result).toEqual(updatedUser);
+            expect(result).toEqual(updatedUserWithoutPassword);
+            expect(result).not.toHaveProperty('password');
         });
 
         it('should hash password when password is provided', async () => {
             const updatedUser = createUserFixture({ id: 1 });
+            const { password: _, ...updatedUserWithoutPassword } = updatedUser;
 
             vi.mocked(db.update).mockReturnValue({
                 set: vi.fn().mockReturnValue({
                     where: vi.fn().mockReturnValue({
-                        returning: vi.fn().mockResolvedValue([updatedUser]),
+                        returning: vi.fn().mockResolvedValue([updatedUserWithoutPassword]),
                     }),
                 }),
             } as never);
 
-            await userService.updateUser(1, { password: 'newpassword' });
+            const result = await userService.updateUser(1, { password: 'newpassword' });
 
             expect(bcrypt.hash).toHaveBeenCalledWith('newpassword', 10);
+            expect(result).not.toHaveProperty('password');
         });
     });
 

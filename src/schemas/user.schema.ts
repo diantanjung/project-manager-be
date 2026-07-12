@@ -1,5 +1,7 @@
 import { z } from "../lib/zod.js";
 
+const userRoleValues = ["admin", "productOwner", "projectManager", "teamMember"] as const;
+
 export const createUserSchema = z.object({
   body: z.object({
     name: z
@@ -11,6 +13,7 @@ export const createUserSchema = z.object({
     password: z
       .string({ message: "Password is required" })
       .min(6, { message: "Password must be at least 6 characters" }),
+    role: z.enum(userRoleValues).optional(),
   }),
 });
 
@@ -41,6 +44,7 @@ export const updateUserSchema = z.object({
     avatarUrl: z
       .string({ message: "Avatar URL must be a string" })
       .optional(),
+    role: z.enum(userRoleValues).optional(),
   }),
 });
 
@@ -65,6 +69,7 @@ export const getUsersQuerySchema = z.object({
       .pipe(z.number().int().min(1).max(100))
       .optional(),
     search: z.string().optional(),
+    role: z.enum(userRoleValues).optional(),
     sortBy: z.enum(["name", "email", "role", "createdAt", "updatedAt"]).optional(),
     order: z.enum(["asc", "desc"]).optional(),
   }),

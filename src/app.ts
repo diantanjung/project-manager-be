@@ -44,18 +44,23 @@ if (process.env.NODE_ENV !== "production") {
   app.get("/api-docs.json", (_req, res) => res.json(swaggerSpec));
 }
 
+const mountApiRoutes = (prefix: string) => {
+  app.use(`${prefix}/auth`, authRoutes);
+  app.use(`${prefix}/users`, userRoutes);
+  app.use(`${prefix}/teams`, teamRoutes);
+  app.use(`${prefix}/projects`, projectRoutes);
+  app.use(`${prefix}/project-teams`, projectTeamRoutes);
+  app.use(`${prefix}/tasks`, taskRoutes);
+  app.use(`${prefix}/task-assignments`, taskAssignmentRoutes);
+  app.use(prefix, commentRoutes);
+  app.use(prefix, attachmentRoutes);
+  app.use(`${prefix}/upload`, uploadRoutes);
+  app.use(`${prefix}/notifications`, notificationRoutes);
+};
+
 // Routes
-app.use("/api/auth", authRoutes);
-app.use("/api/users", userRoutes);
-app.use("/api/teams", teamRoutes);
-app.use("/api/projects", projectRoutes);
-app.use("/api/project-teams", projectTeamRoutes);
-app.use("/api/tasks", taskRoutes);
-app.use("/api/task-assignments", taskAssignmentRoutes);
-app.use("/api", commentRoutes);    // /api/tasks/:taskId/comments & /api/comments/:id
-app.use("/api", attachmentRoutes); // /api/tasks/:taskId/attachments & /api/attachments/:id
-app.use("/api/upload", uploadRoutes);
-app.use("/api/notifications", notificationRoutes);
+mountApiRoutes("/api");
+mountApiRoutes("/api/v1");
 
 // Static file serving for uploads
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));

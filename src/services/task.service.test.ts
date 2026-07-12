@@ -56,10 +56,12 @@ describe('taskService', () => {
             vi.mocked(db.select).mockReturnValueOnce({
                 from: vi.fn().mockReturnValue({
                     leftJoin: vi.fn().mockReturnValue({
-                        where: vi.fn().mockReturnValue({
-                            orderBy: vi.fn().mockReturnValue({
-                                limit: vi.fn().mockReturnValue({
-                                    offset: vi.fn().mockResolvedValue(tasks),
+                        leftJoin: vi.fn().mockReturnValue({
+                            where: vi.fn().mockReturnValue({
+                                orderBy: vi.fn().mockReturnValue({
+                                    limit: vi.fn().mockReturnValue({
+                                        offset: vi.fn().mockResolvedValue(tasks),
+                                    }),
                                 }),
                             }),
                         }),
@@ -83,10 +85,12 @@ describe('taskService', () => {
             vi.mocked(db.select).mockReturnValueOnce({
                 from: vi.fn().mockReturnValue({
                     leftJoin: vi.fn().mockReturnValue({
-                        where: vi.fn().mockReturnValue({
-                            orderBy: vi.fn().mockReturnValue({
-                                limit: vi.fn().mockReturnValue({
-                                    offset: vi.fn().mockResolvedValue([]),
+                        leftJoin: vi.fn().mockReturnValue({
+                            where: vi.fn().mockReturnValue({
+                                orderBy: vi.fn().mockReturnValue({
+                                    limit: vi.fn().mockReturnValue({
+                                        offset: vi.fn().mockResolvedValue([]),
+                                    }),
                                 }),
                             }),
                         }),
@@ -116,7 +120,9 @@ describe('taskService', () => {
             vi.mocked(db.select).mockReturnValueOnce({
                 from: vi.fn().mockReturnValue({
                     leftJoin: vi.fn().mockReturnValue({
-                        where: vi.fn().mockResolvedValue([task]),
+                        leftJoin: vi.fn().mockReturnValue({
+                            where: vi.fn().mockResolvedValue([task]),
+                        }),
                     }),
                 }),
             } as never);
@@ -152,7 +158,9 @@ describe('taskService', () => {
             vi.mocked(db.select).mockReturnValue({
                 from: vi.fn().mockReturnValue({
                     leftJoin: vi.fn().mockReturnValue({
-                        where: vi.fn().mockResolvedValue([]),
+                        leftJoin: vi.fn().mockReturnValue({
+                            where: vi.fn().mockResolvedValue([]),
+                        }),
                     }),
                 }),
             } as never);
