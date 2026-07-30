@@ -1,9 +1,9 @@
 # Product Requirements Document - Project Manager
 
-> Status: source of truth lintas frontend dan backend Node.js  
+> Status: source of truth lintas frontend dan backend Node.js, Laravel, dan Golang  
 > Versi: 1.2  
 > Tanggal audit frontend: 29 Juli 2026  
-> Referensi: `../project-manager-fe/src`, `src/routes`, `src/controllers`, `src/services`, `src/schemas`, `src/db/schema.ts`, dan `../project-manager-laravel/doc`
+> Referensi: `../project-manager-fe/src`, backend Node.js legacy, `../project-manager-laravel/doc`, dan `../project-manager-go/doc`
 
 PRD ini dipecah menjadi beberapa file kecil agar tiap area bisa dibaca dan dikerjakan lebih fokus.
 
