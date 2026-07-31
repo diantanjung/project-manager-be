@@ -12,7 +12,7 @@ Project ini merupakan versi Java Spring Boot dari domain `project-manager-be` ya
 - Menunjukkan pemahaman clean architecture/layered architecture.
 - Menunjukkan kemampuan membuat REST API, validasi request, pagination, filtering, dan error handling.
 - Menunjukkan kemampuan database design dan query optimization dasar.
-- Menunjukkan kemampuan menggunakan Docker untuk local development dan deployment.
+- Menunjukkan kemampuan menggunakan Docker untuk local development dan deployment ke Render/Railway/VPS.
 - Menunjukkan kemampuan mengintegrasikan AI ke workflow aplikasi bisnis.
 - Menunjukkan kemampuan menghubungkan backend Spring Boot dengan frontend React TypeScript yang sudah berjalan.
 - Menyediakan demo yang mudah dijalankan dengan `docker compose up`.
@@ -50,13 +50,14 @@ Solusi yang dibangun adalah sistem project management dengan AI assistant yang d
 - Perbaikan frontend agar portfolio-ready: dashboard data real, AI panel, role-based UI, README, dan Docker setup.
 - REST API documentation dengan OpenAPI/Swagger.
 - Database migration.
-- Docker Compose untuk menjalankan frontend, backend, dan database.
+- Docker Compose untuk menjalankan frontend, backend, dan database secara lokal.
+- Production deployment ke backend web service, Vercel frontend, Supabase Postgres, dan Cloudflare R2.
 - Unit test dan integration test dasar.
 
 ### 5.2 Out of Scope
 
 - Real-time collaboration dengan WebSocket.
-- Full file storage berbasis cloud seperti S3.
+- Storage provider selain Cloudflare R2/S3-compatible untuk MVP.
 - Payment/subscription.
 - Native mobile app.
 - Fine-tuning model sebagai fitur wajib.
@@ -69,12 +70,12 @@ Solusi yang dibangun adalah sistem project management dengan AI assistant yang d
 - Web: Spring Web.
 - Security: Spring Security + JWT.
 - Persistence: Spring Data JPA.
-- Database: PostgreSQL.
+- Database: PostgreSQL, production target Supabase Postgres.
 - Migration: Flyway.
 - API Docs: springdoc-openapi.
 - Testing: JUnit 5, Mockito, Testcontainers.
 - Build Tool: Maven.
-- Deployment: Docker, Docker Compose.
+- Deployment: Docker, Docker Compose, Render Web Service/Railway/VPS Sumopod untuk backend, Vercel untuk frontend.
 - Observability: Spring Boot Actuator.
 - AI Integration: OpenAI-compatible API atau local LLM-compatible provider.
 - Frontend: existing React TypeScript Vite app di `../project-manager-fe`.
@@ -93,7 +94,7 @@ Catatan: Spring Boot menyediakan fondasi untuk aplikasi stand-alone dengan embed
 - Gunakan single assignee: satu task hanya memiliki satu assignee melalui `task.assigneeId`.
 - Gunakan RBAC sederhana berbasis system role dan ownership/membership dasar.
 - Refresh token dikirim melalui HttpOnly cookie, disimpan dalam bentuk hash di database, dan dapat dicabut saat logout.
-- Attachment menggunakan multipart upload ke local storage untuk demo portfolio.
+- Attachment menggunakan multipart upload ke Cloudflare R2 untuk production; local storage hanya fallback development.
 - AI request audit bersifat optional, bukan acceptance criteria wajib.
 
 ## 7. Arsitektur Aplikasi
@@ -191,7 +192,7 @@ Backend Spring Boot harus menjaga kontrak response yang kompatibel dengan fronte
 - `name`
 - `email`
 - `passwordHash`
-- `avatarUrl`
+- `avatarStorageKey`
 - `role`
 - `createdAt`
 - `updatedAt`
@@ -254,8 +255,8 @@ Catatan: untuk MVP portfolio, satu task hanya memiliki satu assignee. Relasi mul
 
 - `id`
 - `fileName`
-- `fileUrl`
-- `storagePath`
+- `originalName`
+- `storageKey`
 - `fileSize`
 - `mimeType`
 - `taskId`
@@ -318,7 +319,7 @@ Catatan: untuk MVP portfolio, satu task hanya memiliki satu assignee. Relasi mul
 
 - User yang memiliki akses ke task dapat menulis komentar.
 - Author dapat mengubah atau menghapus komentarnya sendiri.
-- Attachment disimpan melalui multipart upload ke local storage dan metadata file disimpan di database.
+- Attachment disimpan melalui multipart upload ke Cloudflare R2/S3-compatible object storage di production dan metadata file disimpan di database.
 - Upload file/avatar wajib dibatasi berdasarkan MIME type dan ukuran file.
 
 ### 10.7 Notification
@@ -563,16 +564,30 @@ file=<binary>
 
 ### 12.5 Deployment
 
-- Aplikasi dapat dijalankan dengan Docker Compose.
+- Aplikasi dapat dijalankan lokal dengan Docker Compose.
+- Backend production dapat dijalankan sebagai web service di Render, Railway, atau VPS Sumopod.
+- Frontend React production ditargetkan deploy ke Vercel.
+- Database production memakai Supabase Postgres.
+- File storage production memakai Cloudflare R2.
 - Environment variable minimal:
+  - `PORT`
   - `SPRING_PROFILES_ACTIVE`
   - `DATABASE_URL`
   - `DATABASE_USERNAME`
   - `DATABASE_PASSWORD`
   - `JWT_SECRET`
+  - `COOKIE_DOMAIN`
+  - `CORS_ORIGINS`
   - `AI_API_KEY`
   - `AI_BASE_URL`
   - `AI_MODEL`
+  - `STORAGE_DRIVER`
+  - `R2_ACCOUNT_ID`
+  - `R2_ACCESS_KEY_ID`
+  - `R2_SECRET_ACCESS_KEY`
+  - `R2_BUCKET`
+  - `R2_ENDPOINT`
+  - `R2_SIGNED_URL_TTL_SECONDS`
   - `LOCAL_STORAGE_PATH`
   - `VITE_API_URL`
 
@@ -660,6 +675,7 @@ Wajib:
 - Database schema diagram.
 - API documentation.
 - Docker Compose setup untuk backend, frontend, dan PostgreSQL.
+- Production deployment guide untuk backend di Render/Railway/VPS Sumopod, frontend di Vercel, Supabase Postgres, dan Cloudflare R2.
 - Seed data.
 - Screenshots.
 - Demo video singkat 2-5 menit.
@@ -707,7 +723,7 @@ README harus menjelaskan:
 - Task CRUD.
 - Single assignee task assignment melalui `task.assigneeId`.
 - Comments.
-- Multipart local attachment upload dan metadata.
+- Multipart attachment upload ke Cloudflare R2 di production dan local storage fallback untuk development.
 - Notifications.
 
 ### Milestone 5: AI Assistant
@@ -733,6 +749,10 @@ README harus menjelaskan:
 
 - Swagger/OpenAPI.
 - Docker Compose untuk backend, frontend, dan PostgreSQL.
+- Backend deploy ke minimal satu target production: Render Web Service, Railway, atau VPS Sumopod.
+- Frontend deploy ke Vercel dengan `VITE_API_URL` production.
+- Supabase Postgres connection dan migration berjalan.
+- Cloudflare R2 upload/download/delete attachment berjalan.
 - Unit and integration tests.
 - Backend README.
 - Frontend README update.
@@ -744,6 +764,7 @@ README harus menjelaskan:
 
 - Developer can run the project with `docker compose up`.
 - Docker Compose starts PostgreSQL, Spring Boot backend, and React frontend.
+- Production demo can run with backend on Render/Railway/VPS Sumopod, frontend on Vercel, Supabase Postgres, and Cloudflare R2.
 - React frontend can login against Spring Boot backend.
 - Backend exposes Swagger/OpenAPI documentation.
 - Auth flow works end-to-end.
@@ -780,7 +801,7 @@ README harus menjelaskan:
 - Advanced kanban board filters and saved views.
 - Advanced analytics dashboard.
 - RAG from project documents.
-- File storage integration with S3-compatible storage.
+- Advanced storage features: lifecycle policy, virus scanning, and CDN/private bucket hardening.
 - CI/CD with GitHub Actions.
-- Deployment to VPS or cloud platform.
+- Multi-platform deployment parity across Render, Railway, and VPS Sumopod.
 - Microservices split after monolith is stable.

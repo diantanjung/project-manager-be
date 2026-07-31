@@ -14,9 +14,9 @@
 ## 2. User dan Profile
 
 - Admin dapat list/create/update/delete user.
-- User dapat update profile sendiri: `name`, `email`, `avatarUrl`.
+- User dapat update profile sendiri: `name` dan `email`.
 - Admin dapat update role user; non-admin tidak boleh mengubah role.
-- Avatar upload menggunakan `POST /users/{user}/avatar` dengan field `avatar`.
+- Avatar upload menggunakan `POST /users/{user}/avatar` dengan field `avatar`; backend menyimpan `avatarStorageKey` sebagai target DB/internal field. `avatarUrl` hanya response runtime signed/proxy URL.
 - User list mendukung search, role filter, sort, pagination, dan page size kecil untuk tabel admin.
 
 ## 3. Team Management
@@ -59,10 +59,11 @@
 
 - MVP target memakai multipart upload ke `POST /tasks/{task}/attachments`.
 - Field upload: `file`.
-- Metadata tersimpan: original name, mime type, size, uploader, task, storage path/disk, createdAt.
+- Metadata tersimpan: original name, mime type, size, uploader, task, `storageKey`, dan createdAt. Provider, bucket, endpoint, dan signed URL TTL dibaca dari environment runtime.
 - Download memakai `GET /attachments/{attachment}/download` dengan authorization scoped.
-- Response boleh menyertakan `downloadUrl` signed sementara.
+- Response boleh menyertakan `downloadUrl` signed sementara yang dibuat saat request dan tidak disimpan di table attachment.
 - Delete attachment menghapus metadata dan file fisik/storage object.
+- Production target memakai Cloudflare R2; local storage hanya development fallback.
 - Legacy metadata JSON `fileUrl` masih dicatat sebagai perbedaan Node.js lama.
 
 ## 8. Notification

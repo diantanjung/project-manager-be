@@ -13,6 +13,7 @@
 | Task board DnD | Frontend update status/position melalui patch task; target perlu reorder atomik P1 | MVP/P1 |
 | Attachment upload | Frontend sudah memakai multipart task attachment; Node.js legacy masih metadata URL | MVP |
 | Attachment download | Frontend mengharapkan `/attachments/{id}/download` atau `downloadUrl`; legacy belum ada | MVP |
+| Production deployment | PRD lama belum eksplisit untuk Render/Railway/VPS, Vercel, Supabase, dan Cloudflare R2 | MVP |
 | Avatar upload | Frontend memakai `/users/{id}/avatar`; legacy Node.js route adalah `/upload` | MVP |
 | Notification count | Frontend butuh unread count; target harus jelas walau legacy memakai `count` total item | MVP |
 | Activity latest updates | Dashboard UI siap menampilkan activity; Node.js belum punya table/service | P1 |
@@ -39,7 +40,7 @@ Acceptance criteria:
 - Kanban reorder endpoint atomik dengan status dan position.
 - Unified assignment model dengan primary marker.
 - Checklist task.
-- Attachment upload terpadu ke object storage.
+- Attachment upload terpadu ke Cloudflare R2/S3-compatible object storage.
 - Dashboard latest updates dari activity log.
 
 Acceptance criteria:
