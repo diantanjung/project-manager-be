@@ -160,11 +160,10 @@ Response `201`:
     "uploaderId": 3,
     "fileName": "notes.txt",
     "originalName": "notes.txt",
-    "fileUrl": null,
-    "downloadUrl": "http://localhost:8000/api/v1/attachments/10/download?expires=1&signature=abc",
     "mimeType": "text/plain",
     "fileSize": 14,
     "size": 14,
+    "storageKey": "attachments/tasks/12/10-notes.txt",
     "createdAt": "2026-01-01T00:00:00.000Z"
   }
 }
@@ -181,4 +180,4 @@ Legacy Node.js currently accepts metadata JSON:
 }
 ```
 
-Target implementation should prefer multipart upload and object storage.
+Target implementation should prefer multipart upload and Cloudflare R2/S3-compatible object storage. For MVP, database only needs to persist `storageKey`; storage provider, bucket, endpoint, and signed URL TTL are resolved from runtime environment variables. `downloadUrl` is generated at request time as a short-lived signed URL or backend proxy URL and should not be stored in the `attachments` table. API responses must not expose R2 access keys, secret keys, private bucket policy, or raw credentials.

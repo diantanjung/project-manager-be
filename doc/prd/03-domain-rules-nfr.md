@@ -73,4 +73,8 @@ Catatan Node.js saat ini belum memiliki `ProjectStatus`, `ActivityLog`, webhook,
 - Swagger/OpenAPI tersedia hanya saat `NODE_ENV !== production`.
 - Health check tersedia di `/health` dan/atau `/api/v1/health`.
 - Upload avatar dan attachment wajib validasi MIME/size.
+- Production deployment target memakai backend web service di Render/Railway/VPS Sumopod, frontend React di Vercel, Supabase Postgres, dan Cloudflare R2.
+- Runtime config wajib berasal dari environment variable; secret tidak boleh tersimpan di repository.
+- Backend wajib support CORS credentials untuk origin frontend Vercel dan cookie refresh token lintas domain.
+- Storage production tidak boleh bergantung pada local filesystem; attachment/avatar memakai Cloudflare R2 atau S3-compatible object storage.
 - Unit/feature test harus mencakup service, controller, authorization, dashboard payload, attachment upload/download, dan notification read flow.

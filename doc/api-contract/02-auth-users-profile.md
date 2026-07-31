@@ -107,9 +107,7 @@ Response `200`: paginated `User[]`.
   "name": "Jane Member",
   "email": "jane@example.com",
   "password": "secret123",
-  "role": "teamMember",
-  "avatarUrl": null,
-  "isActive": true
+  "role": "teamMember"
 }
 ```
 
@@ -122,10 +120,11 @@ Self-update fields:
 ```json
 {
   "name": "Jane Updated",
-  "email": "jane.updated@example.com",
-  "avatarUrl": "/uploads/avatar.png"
+  "email": "jane.updated@example.com"
 }
 ```
+
+Avatar tidak diubah lewat `PATCH /users/{user}`. Gunakan endpoint upload avatar agar backend menyimpan object ke storage dan mengupdate `avatarStorageKey`.
 
 Admin-only fields:
 
@@ -152,7 +151,8 @@ Response `200`:
 ```json
 {
   "data": {
-    "url": "/uploads/avatar-123.png"
+    "avatarStorageKey": "avatars/users/1/avatar-123.png",
+    "avatarUrl": "https://signed-or-proxy-avatar-url"
   }
 }
 ```

@@ -23,12 +23,12 @@ Backend requirement:
 - ProtectedRoute memakai role user untuk membatasi halaman admin.
 - Profile menampilkan avatar, name, email, role, user id.
 - User dapat update `name` dan `email`.
-- User dapat upload avatar `image/*`, lalu menyimpan `avatarUrl` ke user profile.
+- User dapat upload avatar `image/*`; target backend menyimpan `avatarStorageKey` dan mengembalikan `avatarUrl` runtime untuk display.
 
 Backend requirement:
 
 - Auth response harus menyediakan user aman dan access token.
-- `PATCH /users/{id}` harus support self-update untuk `name`, `email`, `avatarUrl`.
+- `PATCH /users/{id}` target hanya support self-update untuk `name` dan `email`; avatar memakai endpoint upload khusus.
 - Avatar upload target yang dipakai frontend adalah `POST /users/{user}/avatar`; legacy `POST /upload` hanya kompatibilitas.
 - Response user tidak boleh berisi password hash.
 

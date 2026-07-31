@@ -14,6 +14,7 @@ PRD ini dipecah menjadi beberapa file kecil agar tiap area bisa dibaca dan diker
 | [Domain, Rules, dan Non-Functional Requirements](prd/03-domain-rules-nfr.md) | Model domain, enum, aturan bisnis, dan kebutuhan teknis |
 | [Feature Requirements](prd/04-feature-requirements.md) | Requirement per area produk |
 | [Roadmap dan Gap](prd/05-roadmap-gaps.md) | Gap implementasi, prioritas, dan acceptance criteria |
+| [Deployment dan Infrastructure](prd/06-deployment-infrastructure.md) | Target hosting, database, storage, environment variable, dan operasional deploy |
 
 ## Cara Pakai
 

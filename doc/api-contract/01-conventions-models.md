@@ -109,7 +109,7 @@ type User = {
   id: number;
   name: string;
   email: string;
-  avatarUrl: string | null;
+  avatarStorageKey: string | null;
   role: UserRole;
   timezone: string | null;
   lastLoginAt: string | null;
@@ -186,16 +186,20 @@ type Attachment = {
   taskId: number;
   uploaderId: number;
   fileName: string;
-  fileUrl: string | null;
-  downloadUrl?: string;
-  disk?: string;
-  path?: string;
-  originalName?: string;
+  originalName: string;
+  storageKey: string;
   mimeType: string | null;
   fileSize: number | null;
-  size?: number | null;
   createdAt: string | null;
   updatedAt?: string | null;
+  downloadUrl?: string;
+  size?: number | null;
   uploader?: Pick<User, "id" | "name" | "avatarUrl">;
+  // Legacy compatibility only; target schema should not persist these.
+  fileUrl?: string | null;
+  disk?: string;
+  path?: string;
 };
 ```
+
+`avatarStorageKey` adalah field storage internal/DB untuk private R2. `avatarUrl` adalah response runtime yang boleh berupa signed URL sementara atau backend proxy URL, dan tidak perlu disimpan sebagai kolom database target.

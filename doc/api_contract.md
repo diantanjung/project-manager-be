@@ -14,7 +14,7 @@ API contract dipecah menjadi beberapa file kecil agar review dan implementasi le
 | [Teams dan Projects](api-contract/03-teams-projects.md) | Team/member, project, sidebar project, summary, dan project-team |
 | [Tasks, Comments, dan Attachments](api-contract/04-tasks-collaboration.md) | Task board/list, reorder, komentar, mention, upload/download attachment |
 | [Notifications, Dashboard, Activity, Export, Webhook](api-contract/05-insights-automation.md) | Notification bell, dashboard summary, audit/activity, export, webhook |
-| [Utility dan Implementation Status](api-contract/06-utility-status.md) | Health, Swagger, status matrix, dan perbedaan Node.js legacy |
+| [Utility, Deployment Runtime, dan Implementation Status](api-contract/06-utility-status.md) | Health, Swagger, deployment runtime, status matrix, dan perbedaan Node.js legacy |
 
 ## Status Contract
 
