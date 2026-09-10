@@ -4,9 +4,14 @@ import {
   text,
   timestamp,
   integer,
+  bigint,
+  bigserial,
   boolean,
   pgEnum,
   date,
+  varchar,
+  uuid,
+  json,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
@@ -39,20 +44,15 @@ export const taskPriorityEnum = pgEnum("task_priority", [
 // Users
 // ============================================================================
 
-export const userRoleEnum = pgEnum("user_role", [
-  "admin",
-  "productOwner",
-  "projectManager",
-  "teamMember",
-]);
+type UserRole = "admin" | "productOwner" | "projectManager" | "teamMember";
 
 export const users = pgTable("users", {
-  id: serial("id").primaryKey(),
+  id: bigserial("id", { mode: "number" }).primaryKey(),
   name: text("name").notNull(),
   email: text("email").notNull().unique(),
   password: text("password").notNull(),
-  avatarUrl: text("avatar_url"),
-  role: userRoleEnum("role").default("teamMember").notNull(),
+  avatarStorageKey: text("avatar_url"),
+  role: varchar("role", { length: 255 }).$type<UserRole>().default("teamMember").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -62,7 +62,6 @@ export const usersRelations = relations(users, ({ many }) => ({
   teamMemberships: many(teamMembers),
   comments: many(comments),
   receivedNotifications: many(notifications, { relationName: "receivedNotifications" }),
-  triggeredNotifications: many(notifications, { relationName: "triggeredNotifications" }),
 }));
 
 // ============================================================================
@@ -71,10 +70,10 @@ export const usersRelations = relations(users, ({ many }) => ({
 
 export const refreshTokens = pgTable("refresh_tokens", {
   id: serial("id").primaryKey(),
-  userId: integer("user_id")
+  userId: bigint("user_id", { mode: "number" })
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
-  token: text("token").notNull().unique(),
+  token: text("hash_token").notNull().unique(),
   expiresAt: timestamp("expires_at").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
   isRevoked: boolean("is_revoked").default(false),
@@ -139,10 +138,7 @@ export const projects = pgTable("projects", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
   description: text("description"),
-  teamId: integer("team_id")
-    .notNull()
-    .references(() => teams.id),
-  ownerId: integer("owner_id")
+  ownerId: bigint("owner_id", { mode: "number" })
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
   createdAt: timestamp("created_at").defaultNow(),
@@ -150,10 +146,6 @@ export const projects = pgTable("projects", {
 });
 
 export const projectsRelations = relations(projects, ({ one, many }) => ({
-  team: one(teams, {
-    fields: [projects.teamId],
-    references: [teams.id],
-  }),
   owner: one(users, {
     fields: [projects.ownerId],
     references: [users.id],
@@ -201,10 +193,10 @@ export const tasks = pgTable("tasks", {
   projectId: integer("project_id")
     .notNull()
     .references(() => projects.id),
-  creatorId: integer("creator_id")
+  creatorId: bigint("creator_id", { mode: "number" })
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
-  assigneeId: integer("assignee_id")
+  assigneeId: bigint("assignee_id", { mode: "number" })
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
   dueDate: date("due_date"),
@@ -240,7 +232,7 @@ export const taskAssignments = pgTable("task_assignments", {
   taskId: integer("task_id")
     .notNull()
     .references(() => tasks.id, { onDelete: "cascade" }),
-  userId: integer("user_id")
+  userId: bigint("user_id", { mode: "number" })
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
   assignedAt: timestamp("assigned_at").defaultNow(),
@@ -267,7 +259,7 @@ export const comments = pgTable("comments", {
   taskId: integer("task_id")
     .notNull()
     .references(() => tasks.id),
-  authorId: integer("author_id")
+  authorId: bigint("author_id", { mode: "number" })
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
   createdAt: timestamp("created_at").defaultNow(),
@@ -298,7 +290,7 @@ export const attachments = pgTable("attachments", {
   taskId: integer("task_id")
     .notNull()
     .references(() => tasks.id),
-  uploaderId: integer("uploader_id")
+  uploaderId: bigint("uploader_id", { mode: "number" })
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
   createdAt: timestamp("created_at").defaultNow(),
@@ -320,32 +312,39 @@ export const attachmentsRelations = relations(attachments, ({ one }) => ({
 // ============================================================================
 
 export const notifications = pgTable("notifications", {
-  id: serial("id").primaryKey(),
-  userId: integer("user_id")
-    .notNull()
-    .references(() => users.id, { onDelete: "cascade" }), // The recipient
-  actorId: integer("actor_id")
-    .references(() => users.id, { onDelete: "set null" }), // Who triggered it
-  type: notificationTypeEnum("type").notNull(),
-  taskId: integer("task_id")
-    .references(() => tasks.id, { onDelete: "cascade" }), // Related task, if any
-  isRead: boolean("is_read").default(false).notNull(),
+  id: uuid("id").defaultRandom().primaryKey(),
+  type: varchar("type", { length: 255 }).notNull(),
+  notifiableType: varchar("notifiable_type", { length: 255 }).notNull(),
+  notifiableId: bigint("notifiable_id", { mode: "number" }).notNull(),
+  data: text("data").notNull(),
+  readAt: timestamp("read_at"),
   createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 export const notificationsRelations = relations(notifications, ({ one }) => ({
   user: one(users, {
-    fields: [notifications.userId],
+    fields: [notifications.notifiableId],
     references: [users.id],
     relationName: "receivedNotifications",
   }),
-  actor: one(users, {
-    fields: [notifications.actorId],
-    references: [users.id],
-    relationName: "triggeredNotifications",
-  }),
-  task: one(tasks, {
-    fields: [notifications.taskId],
-    references: [tasks.id],
-  }),
 }));
+
+// ============================================================================
+// Activity Logs
+// ============================================================================
+
+export const activityLogs = pgTable("activity_logs", {
+  id: bigserial("id", { mode: "number" }).primaryKey(),
+  actorId: bigint("actor_id", { mode: "number" }).references(() => users.id, {
+    onDelete: "set null",
+  }),
+  entityType: varchar("entity_type", { length: 255 }).notNull(),
+  entityId: bigint("entity_id", { mode: "number" }).notNull(),
+  action: varchar("action", { length: 255 }).notNull(),
+  before: json("before").$type<Record<string, unknown> | null>(),
+  after: json("after").$type<Record<string, unknown> | null>(),
+  ipAddress: varchar("ip_address", { length: 45 }),
+  userAgent: text("user_agent"),
+  createdAt: timestamp("created_at"),
+});

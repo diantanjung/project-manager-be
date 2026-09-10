@@ -14,8 +14,16 @@ const REFRESH_TOKEN_COOKIE_OPTIONS = {
 export const authController = {
   async register(req: Request, res: Response, next: NextFunction) {
     try {
-      const user = await authService.register(req.body);
-      return res.status(201).json(user);
+      const result = await authService.register(req.body);
+
+      res.cookie(
+        "refreshToken",
+        result.refreshToken,
+        REFRESH_TOKEN_COOKIE_OPTIONS,
+      );
+
+      const { refreshToken, ...responseData } = result;
+      return res.status(201).json({ data: responseData });
     } catch (error: unknown) {
       if (error instanceof Error && error.message === "User already exists") {
         return res.status(409).json({ message: error.message });
@@ -37,7 +45,7 @@ export const authController = {
 
       // Don't send refreshToken in response body - only accessToken and user
       const { refreshToken, ...responseData } = result;
-      return res.json(responseData);
+      return res.json({ data: responseData });
     } catch (error: unknown) {
       if (error instanceof Error && error.message === "Invalid credentials") {
         return res.status(401).json({ message: error.message });
@@ -48,8 +56,8 @@ export const authController = {
 
   async refreshToken(req: Request, res: Response, next: NextFunction) {
     try {
-      // Read refresh token from HttpOnly cookie
-      const refreshToken = req.cookies?.refreshToken;
+      // Prefer the HttpOnly cookie, but allow body token for non-browser clients.
+      const refreshToken = req.cookies?.refreshToken ?? req.body?.refreshToken;
 
       if (!refreshToken) {
         return res.status(401).json({ message: "Refresh token not found" });
@@ -65,7 +73,7 @@ export const authController = {
       );
 
       // Return only accessToken in response body
-      return res.json({ accessToken: result.accessToken });
+      return res.json({ data: { accessToken: result.accessToken } });
     } catch (error: unknown) {
       if (
         error instanceof Error &&

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { createMockRequest, createMockResponse, createMockNext } from '../__tests__/helpers/mockRequest.js';
-import { createUserFixture, createUserInput, createUserResponseFixture } from '../__tests__/fixtures/user.fixtures.js';
+import { createUserInput, createUserResponseFixture } from '../__tests__/fixtures/user.fixtures.js';
 
 // Mock the user service
 vi.mock('../services/user.service.js', () => ({
@@ -133,7 +133,7 @@ describe('userController', () => {
 
     describe('updateUser', () => {
         it('should return updated user on success', async () => {
-            const mockUser = createUserFixture({ id: 1, name: 'Updated Name' });
+            const mockUser = createUserResponseFixture({ id: 1, name: 'Updated Name' });
             vi.mocked(userService.updateUser).mockResolvedValue(mockUser);
 
             const req = createMockRequest({
@@ -167,7 +167,7 @@ describe('userController', () => {
 
     describe('deleteUser', () => {
         it('should return success message on delete', async () => {
-            const mockUser = createUserFixture({ id: 1 });
+            const mockUser = createUserResponseFixture({ id: 1 });
             vi.mocked(userService.deleteUser).mockResolvedValue(mockUser);
 
             const req = createMockRequest({ params: { id: '1' } });

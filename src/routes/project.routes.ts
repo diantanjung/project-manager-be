@@ -17,6 +17,7 @@ router.use(authenticate);
 
 // Read operations - all authenticated users
 router.get("/", validate(getProjectsQuerySchema), projectController.getAllProjects);
+router.get("/sidebar", projectController.getProjectSidebar);
 router.get("/:id", validate(projectIdSchema), projectController.getProjectById);
 router.get("/:id/tasks", validate(getProjectTasksSchema), projectController.getProjectTasks);
 router.get("/:id/teams", validate(projectIdSchema), projectController.getProjectTeams);

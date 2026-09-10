@@ -32,14 +32,14 @@ const run = async () => {
       password: "password123",
     }),
   });
-  const loginData = (await loginRes.json()) as { accessToken: string };
+  const loginData = (await loginRes.json()) as { data?: { accessToken?: string } };
   console.log(
     "   Response:",
     loginRes.status,
-    loginData.accessToken ? "Token received" : "No token",
+    loginData.data?.accessToken ? "Token received" : "No token",
   );
 
-  if (!loginData.accessToken) throw new Error("Login failed");
+  if (!loginData.data?.accessToken) throw new Error("Login failed");
 
   // 3. Protected Route (Optional: Try to get own user details)
   // For now we just verify we have the token.

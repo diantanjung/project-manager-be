@@ -10,6 +10,7 @@ import {
 } from "../schemas/user.schema.js";
 import { authenticate, AuthRequest } from "../middlewares/auth.js";
 import { requireAdmin, requireProjectManager } from "../middlewares/rbac.js";
+import { upload } from "../middlewares/upload.js";
 
 const router = Router();
 
@@ -32,6 +33,7 @@ router.get("/:id/tasks", validate(getUserTasksSchema), userController.getUserTas
 // Create/Update - admin only
 router.post("/", requireAdmin, validate(createUserSchema), userController.createUser);
 router.patch("/:id", requireSelfOrProjectManager, validate(updateUserSchema), userController.updateUser);
+router.post("/:id/avatar", validate(userIdSchema), upload.single("avatar"), userController.uploadAvatar);
 
 // Delete - admin only
 router.delete("/:id", requireAdmin, validate(userIdSchema), userController.deleteUser);

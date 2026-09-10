@@ -29,9 +29,13 @@ describe('authController', () => {
             password: 'password123',
         };
 
-        it('should return 201 and created user on success', async () => {
-            const mockUser = createUserResponseFixture();
-            vi.mocked(authService.register).mockResolvedValue(mockUser);
+        it('should return 201 with session data and set cookie on success', async () => {
+            const mockResult = {
+                user: createUserResponseFixture(),
+                accessToken: 'access-token-123',
+                refreshToken: 'refresh-token-456',
+            };
+            vi.mocked(authService.register).mockResolvedValue(mockResult);
 
             const req = createMockRequest({ body: registerInput }) as unknown as Request;
             const res = createMockResponse();
@@ -40,8 +44,18 @@ describe('authController', () => {
             await authController.register(req, res, next);
 
             expect(authService.register).toHaveBeenCalledWith(registerInput);
+            expect(res.cookie).toHaveBeenCalledWith(
+                'refreshToken',
+                'refresh-token-456',
+                expect.objectContaining({ httpOnly: true })
+            );
             expect(res.status).toHaveBeenCalledWith(201);
-            expect(res.json).toHaveBeenCalledWith(mockUser);
+            expect(res.json).toHaveBeenCalledWith({
+                data: {
+                    user: mockResult.user,
+                    accessToken: 'access-token-123',
+                },
+            });
         });
 
         it('should return 409 when user already exists', async () => {
@@ -79,7 +93,7 @@ describe('authController', () => {
 
         it('should return user and accessToken, set cookie on success', async () => {
             const mockResult = {
-                user: createUserResponseFixture(),
+                user: { ...createUserResponseFixture(), avatarUrl: null },
                 accessToken: 'access-token-123',
                 refreshToken: 'refresh-token-456',
             };
@@ -98,8 +112,10 @@ describe('authController', () => {
                 expect.objectContaining({ httpOnly: true })
             );
             expect(res.json).toHaveBeenCalledWith({
-                user: mockResult.user,
-                accessToken: 'access-token-123',
+                data: {
+                    user: mockResult.user,
+                    accessToken: 'access-token-123',
+                },
             });
         });
 
@@ -150,7 +166,7 @@ describe('authController', () => {
                 'new-refresh-token',
                 expect.objectContaining({ httpOnly: true })
             );
-            expect(res.json).toHaveBeenCalledWith({ accessToken: 'new-access-token' });
+            expect(res.json).toHaveBeenCalledWith({ data: { accessToken: 'new-access-token' } });
         });
 
         it('should return 401 when refresh token not found in cookies', async () => {

@@ -43,6 +43,7 @@ export const updateUserSchema = z.object({
       ),
     avatarUrl: z
       .string({ message: "Avatar URL must be a string" })
+      .nullable()
       .optional(),
     role: z.enum(userRoleValues).optional(),
   }),

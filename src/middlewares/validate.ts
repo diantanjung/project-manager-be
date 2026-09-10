@@ -1,6 +1,23 @@
 import { Request, Response, NextFunction } from "express";
 import { ZodError, ZodSchema } from "zod";
 
+const replaceRequestProperty = <K extends "body" | "query" | "params">(
+  req: Request,
+  key: K,
+  value: Request[K] | undefined
+) => {
+  if (value === undefined) {
+    return;
+  }
+
+  Object.defineProperty(req, key, {
+    value,
+    configurable: true,
+    enumerable: true,
+    writable: true,
+  });
+};
+
 export const validate =
   (schema: ZodSchema) =>
     async (req: Request, res: Response, next: NextFunction) => {
@@ -10,7 +27,9 @@ export const validate =
           query: req.query,
           params: req.params,
         }) as any;
-        req.body = parsed.body || req.body;
+        replaceRequestProperty(req, "body", parsed.body);
+        replaceRequestProperty(req, "query", parsed.query);
+        replaceRequestProperty(req, "params", parsed.params);
         return next();
       } catch (error) {
         if (error instanceof ZodError) {

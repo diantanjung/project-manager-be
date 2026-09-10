@@ -9,10 +9,14 @@ export interface UserFixture {
     email: string;
     password: string;
     role: 'admin' | 'productOwner' | 'projectManager' | 'teamMember';
-    avatarUrl: string | null;
+    avatarStorageKey: string | null;
     createdAt: Date | null;
     updatedAt: Date | null;
 }
+
+export type UserResponseFixture = Omit<UserFixture, 'password' | 'avatarStorageKey'> & {
+    avatarUrl: string | null;
+};
 
 /**
  * Creates a user fixture with default values that can be overridden.
@@ -23,7 +27,7 @@ export const createUserFixture = (overrides: Partial<UserFixture> = {}): UserFix
     email: 'test@example.com',
     password: 'hashedpassword123',
     role: 'teamMember',
-    avatarUrl: null,
+    avatarStorageKey: null,
     createdAt: new Date('2026-01-01T00:00:00Z'),
     updatedAt: new Date('2026-01-01T00:00:00Z'),
     ...overrides,
@@ -32,9 +36,11 @@ export const createUserFixture = (overrides: Partial<UserFixture> = {}): UserFix
 /**
  * Creates a user fixture without password (for API response testing).
  */
-export const createUserResponseFixture = (overrides: Partial<Omit<UserFixture, 'password'>> = {}) => {
-    const { password: _, ...user } = createUserFixture(overrides);
-    return user;
+export const createUserResponseFixture = (
+    overrides: Partial<Omit<UserFixture, 'password'>> = {}
+): UserResponseFixture => {
+    const { password: _, avatarStorageKey, ...user } = createUserFixture(overrides);
+    return { ...user, avatarUrl: avatarStorageKey };
 };
 
 /**

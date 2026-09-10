@@ -7,6 +7,7 @@ vi.mock('../services/project.service.js', () => ({
     projectService: {
         createProject: vi.fn(),
         getAllProjects: vi.fn(),
+        getProjectSidebar: vi.fn(),
         getProjectById: vi.fn(),
         updateProject: vi.fn(),
         deleteProject: vi.fn(),
@@ -117,6 +118,38 @@ describe('projectController', () => {
             await projectController.getAllProjects(req, res, next);
 
             expect(next).toHaveBeenCalledWith(error);
+        });
+    });
+
+    describe('getProjectSidebar', () => {
+        it('should return sidebar projects for authenticated user', async () => {
+            const mockResult = {
+                data: [
+                    { id: 1, name: 'Website redesign', openTaskCount: 7 },
+                ],
+            };
+            vi.mocked(projectService.getProjectSidebar).mockResolvedValue(mockResult);
+
+            const req = createMockRequest();
+            const res = createMockResponse();
+            const next = createMockNext();
+
+            await projectController.getProjectSidebar(req, res, next);
+
+            expect(projectService.getProjectSidebar).toHaveBeenCalledWith(expect.objectContaining({ id: 1 }));
+            expect(res.json).toHaveBeenCalledWith(mockResult);
+        });
+
+        it('should return 401 when user is missing', async () => {
+            const req = createMockRequest({ user: undefined });
+            const res = createMockResponse();
+            const next = createMockNext();
+
+            await projectController.getProjectSidebar(req, res, next);
+
+            expect(res.status).toHaveBeenCalledWith(401);
+            expect(res.json).toHaveBeenCalledWith({ message: 'Authentication required' });
+            expect(projectService.getProjectSidebar).not.toHaveBeenCalled();
         });
     });
 

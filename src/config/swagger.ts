@@ -11,6 +11,7 @@ import { registerTaskEndpoints } from "./swagger/task.swagger.js";
 import { registerTaskAssignmentEndpoints } from "./swagger/taskAssignment.swagger.js";
 import { registerCommentEndpoints } from "./swagger/comment.swagger.js";
 import { registerAttachmentEndpoints } from "./swagger/attachment.swagger.js";
+import { registerDashboardEndpoints } from "./swagger/dashboard.swagger.js";
 
 const registry = new OpenAPIRegistry();
 
@@ -31,6 +32,7 @@ registerTaskEndpoints(registry);
 registerTaskAssignmentEndpoints(registry);
 registerCommentEndpoints(registry);
 registerAttachmentEndpoints(registry);
+registerDashboardEndpoints(registry);
 
 // Generate OpenAPI spec
 const generator = new OpenApiGeneratorV3(registry.definitions);

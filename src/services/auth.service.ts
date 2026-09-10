@@ -23,7 +23,17 @@ export const authService = {
       throw new Error("User already exists");
     }
 
-    return userService.createUser(data);
+    const user = await userService.createUser(data);
+    const accessToken = this.generateAccessToken(user.id, user.email, user.role);
+    const refreshToken = this.generateRefreshToken(user.id, user.email);
+
+    await this.saveRefreshToken(user.id, refreshToken);
+
+    return {
+      user,
+      accessToken,
+      refreshToken,
+    };
   },
 
   async login(data: Pick<typeof users.$inferInsert, "email" | "password">) {
@@ -45,9 +55,13 @@ export const authService = {
 
     await this.saveRefreshToken(user.id, refreshToken);
 
-    const { password, ...userWithoutPassword } = user;
+    const { password, avatarStorageKey, ...userWithoutPassword } = user;
 
-    return { user: userWithoutPassword, accessToken, refreshToken };
+    return {
+      user: { ...userWithoutPassword, avatarUrl: avatarStorageKey },
+      accessToken,
+      refreshToken,
+    };
   },
   generateAccessToken(id: number, email: string, role?: string) {
     return jwt.sign({ id, email, role, type: "access" }, env.JWT_SECRET, {
@@ -92,6 +106,7 @@ export const authService = {
       userId,
       token: hashedToken,
       expiresAt,
+      createdAt: new Date(),
     });
   },
   async refreshAccessToken(refreshToken: string) {

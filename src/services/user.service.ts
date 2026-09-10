@@ -3,6 +3,39 @@ import { db } from "../db/index.js";
 import { users, tasks, projects } from "../db/schema.js";
 import bcrypt from "bcryptjs";
 
+type UserRow = typeof users.$inferSelect;
+type CreateUserData = typeof users.$inferInsert;
+type UpdateUserData = Partial<CreateUserData> & {
+  avatarUrl?: string | null;
+};
+
+const userResponseColumns = {
+  id: users.id,
+  name: users.name,
+  email: users.email,
+  avatarStorageKey: users.avatarStorageKey,
+  role: users.role,
+  createdAt: users.createdAt,
+  updatedAt: users.updatedAt,
+};
+
+const toUserResponse = <T extends Pick<UserRow, "avatarStorageKey">>(
+  user: T
+): Omit<T, "avatarStorageKey"> & { avatarUrl: string | null } => {
+  const { avatarStorageKey, ...rest } = user;
+  return { ...rest, avatarUrl: avatarStorageKey ?? null };
+};
+
+const normalizeUserWriteData = (data: UpdateUserData): Partial<CreateUserData> => {
+  const { avatarUrl, ...writeData } = data;
+
+  if (avatarUrl !== undefined) {
+    writeData.avatarStorageKey = avatarUrl;
+  }
+
+  return writeData;
+};
+
 export interface PaginationOptions {
   page?: number;
   limit?: number;
@@ -23,14 +56,14 @@ export interface PaginatedResult<T> {
 }
 
 export const userService = {
-  async createUser(data: typeof users.$inferInsert) {
+  async createUser(data: CreateUserData) {
     const hashedPassword = await bcrypt.hash(data.password, 10);
     const [newUser] = await db
       .insert(users)
       .values({ ...data, password: hashedPassword })
       .returning();
     const { password, ...rest } = newUser;
-    return rest;
+    return toUserResponse(rest);
   },
 
   async getAllUsers(options: PaginationOptions = {}) {
@@ -76,12 +109,7 @@ export const userService = {
     // Get paginated data
     const data = await db
       .select({
-        id: users.id,
-        name: users.name,
-        email: users.email,
-        role: users.role,
-        createdAt: users.createdAt,
-        updatedAt: users.updatedAt,
+        ...userResponseColumns,
       })
       .from(users)
       .where(whereClause)
@@ -90,7 +118,7 @@ export const userService = {
       .offset(offset);
 
     return {
-      data,
+      data: data.map(toUserResponse),
       pagination: {
         page,
         limit,
@@ -102,50 +130,31 @@ export const userService = {
 
   async getUserById(id: number) {
     const [user] = await db.select(
-      {
-        id: users.id,
-        name: users.name,
-        email: users.email,
-        role: users.role,
-        createdAt: users.createdAt,
-        updatedAt: users.updatedAt,
-      }
+      userResponseColumns
     ).from(users).where(eq(users.id, id));
-    return user;
+    return user ? toUserResponse(user) : undefined;
   },
 
-  async updateUser(id: number, data: Partial<typeof users.$inferInsert>) {
-    if (data.password) {
-      data.password = await bcrypt.hash(data.password, 10);
+  async updateUser(id: number, data: UpdateUserData) {
+    const writeData = normalizeUserWriteData(data);
+
+    if (writeData.password) {
+      writeData.password = await bcrypt.hash(writeData.password, 10);
     }
     const [updatedUser] = await db
       .update(users)
-      .set({ ...data, updatedAt: new Date() })
+      .set({ ...writeData, updatedAt: new Date() })
       .where(eq(users.id, id))
-      .returning({
-        id: users.id,
-        name: users.name,
-        email: users.email,
-        role: users.role,
-        createdAt: users.createdAt,
-        updatedAt: users.updatedAt,
-      });
-    return updatedUser;
+      .returning(userResponseColumns);
+    return updatedUser ? toUserResponse(updatedUser) : undefined;
   },
 
   async deleteUser(id: number) {
     const [deletedUser] = await db
       .delete(users)
       .where(eq(users.id, id))
-      .returning({
-        id: users.id,
-        name: users.name,
-        email: users.email,
-        role: users.role,
-        createdAt: users.createdAt,
-        updatedAt: users.updatedAt,
-      });
-    return deletedUser;
+      .returning(userResponseColumns);
+    return deletedUser ? toUserResponse(deletedUser) : undefined;
   },
 
   async getUserTasks(userId: number, options: PaginationOptions = {}) {

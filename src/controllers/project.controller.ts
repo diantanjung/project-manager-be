@@ -47,6 +47,18 @@ export const projectController = {
         }
     },
 
+    async getProjectSidebar(req: AuthRequest, res: Response, next: NextFunction) {
+        try {
+            if (!req.user) {
+                return res.status(401).json({ message: "Authentication required" });
+            }
+            const result = await projectService.getProjectSidebar(req.user);
+            return res.json(result);
+        } catch (error) {
+            return next(error);
+        }
+    },
+
     async getProjectById(req: AuthRequest, res: Response, next: NextFunction) {
         try {
             if (!req.user) {

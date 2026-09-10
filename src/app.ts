@@ -16,6 +16,7 @@ import { commentRoutes } from "./routes/comment.routes.js";
 import { attachmentRoutes } from "./routes/attachment.routes.js";
 import { uploadRoutes } from "./routes/upload.routes.js";
 import { notificationRoutes } from "./routes/notification.routes.js";
+import { dashboardRoutes } from "./routes/dashboard.routes.js";
 import { errorHandler } from "./middlewares/errorHandler.js";
 import path from "path";
 
@@ -56,11 +57,12 @@ const mountApiRoutes = (prefix: string) => {
   app.use(prefix, attachmentRoutes);
   app.use(`${prefix}/upload`, uploadRoutes);
   app.use(`${prefix}/notifications`, notificationRoutes);
+  app.use(`${prefix}/dashboard`, dashboardRoutes);
 };
 
 // Routes
-mountApiRoutes("/api");
 mountApiRoutes("/api/v1");
+mountApiRoutes("/api");
 
 // Static file serving for uploads
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
