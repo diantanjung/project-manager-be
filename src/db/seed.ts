@@ -46,49 +46,49 @@ async function seed() {
                     name: "Admin User",
                     email: "admin@example.com",
                     password: hashedPassword,
-                    avatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=admin",
+                    avatarStorageKey: "https://api.dicebear.com/7.x/avataaars/svg?seed=admin",
                     role: "admin",
                 },
                 {
                     name: "John Product Owner",
                     email: "john@example.com",
                     password: hashedPassword,
-                    avatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=john",
+                    avatarStorageKey: "https://api.dicebear.com/7.x/avataaars/svg?seed=john",
                     role: "productOwner",
                 },
                 {
                     name: "Jane Manager",
                     email: "jane@example.com",
                     password: hashedPassword,
-                    avatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=jane",
+                    avatarStorageKey: "https://api.dicebear.com/7.x/avataaars/svg?seed=jane",
                     role: "projectManager",
                 },
                 {
                     name: "Bob Manager",
                     email: "bob@example.com",
                     password: hashedPassword,
-                    avatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=bob",
+                    avatarStorageKey: "https://api.dicebear.com/7.x/avataaars/svg?seed=bob",
                     role: "projectManager",
                 },
                 {
                     name: "Alice Developer",
                     email: "alice@example.com",
                     password: hashedPassword,
-                    avatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=alice",
+                    avatarStorageKey: "https://api.dicebear.com/7.x/avataaars/svg?seed=alice",
                     role: "teamMember",
                 },
                 {
                     name: "Charlie Designer",
                     email: "charlie@example.com",
                     password: hashedPassword,
-                    avatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=charlie",
+                    avatarStorageKey: "https://api.dicebear.com/7.x/avataaars/svg?seed=charlie",
                     role: "teamMember",
                 },
                 {
                     name: "Dave Developer",
                     email: "dave@example.com",
                     password: hashedPassword,
-                    avatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=dave",
+                    avatarStorageKey: "https://api.dicebear.com/7.x/avataaars/svg?seed=dave",
                     role: "teamMember",
                 },
             ])
@@ -150,21 +150,18 @@ async function seed() {
                     name: "Website Redesign",
                     description:
                         "Complete overhaul of the company website with modern design and improved UX",
-                    teamId: engineeringTeam.id,
                     ownerId: productOwner.id,
                 },
                 {
                     name: "Mobile App v2.0",
                     description:
                         "Major update to the mobile application with new features and performance improvements",
-                    teamId: engineeringTeam.id,
                     ownerId: productOwner.id,
                 },
                 {
                     name: "Brand Guidelines",
                     description:
                         "Comprehensive brand identity guidelines and design system documentation",
-                    teamId: designTeam.id,
                     ownerId: productOwner.id,
                 },
             ])

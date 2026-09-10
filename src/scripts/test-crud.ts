@@ -39,9 +39,9 @@ const run = async () => {
       password: testPassword,
     }),
   });
-  const loginData = (await loginRes.json()) as { accessToken: string };
+  const loginData = (await loginRes.json()) as { data?: { accessToken?: string } };
 
-  if (!loginData.accessToken) {
+  if (!loginData.data?.accessToken) {
     throw new Error("Failed to authenticate - no token received");
   }
   console.log("   ✅ Authenticated successfully\n");
@@ -49,7 +49,7 @@ const run = async () => {
   // Create authenticated headers
   const authHeaders = {
     "Content-Type": "application/json",
-    Authorization: `Bearer ${loginData.accessToken}`,
+    Authorization: `Bearer ${loginData.data.accessToken}`,
   };
 
   // 1. Create User

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import bcrypt from 'bcryptjs';
-import { createUserFixture, createUserInput } from '../__tests__/fixtures/user.fixtures.js';
+import { createUserFixture, createUserInput, createUserResponseFixture } from '../__tests__/fixtures/user.fixtures.js';
 
 // Mock the database module
 vi.mock('../db/index.js', () => ({
@@ -61,6 +61,7 @@ describe('userService', () => {
         it('should return user when found', async () => {
             const user = createUserFixture({ id: 1 });
             const { password: _, ...userWithoutPassword } = user;
+            const expectedUser = createUserResponseFixture({ id: 1 });
 
             vi.mocked(db.select).mockReturnValue({
                 from: vi.fn().mockReturnValue({
@@ -70,7 +71,7 @@ describe('userService', () => {
 
             const result = await userService.getUserById(1);
 
-            expect(result).toEqual(userWithoutPassword);
+            expect(result).toEqual(expectedUser);
         });
 
         it('should return undefined when user not found', async () => {
@@ -90,6 +91,7 @@ describe('userService', () => {
         it('should update user without rehashing if password not provided', async () => {
             const updatedUser = createUserFixture({ id: 1, name: 'Updated Name' });
             const { password: _, ...updatedUserWithoutPassword } = updatedUser;
+            const expectedUser = createUserResponseFixture({ id: 1, name: 'Updated Name' });
 
             vi.mocked(db.update).mockReturnValue({
                 set: vi.fn().mockReturnValue({
@@ -102,7 +104,7 @@ describe('userService', () => {
             const result = await userService.updateUser(1, { name: 'Updated Name' });
 
             expect(bcrypt.hash).not.toHaveBeenCalled();
-            expect(result).toEqual(updatedUserWithoutPassword);
+            expect(result).toEqual(expectedUser);
             expect(result).not.toHaveProperty('password');
         });
 
@@ -128,17 +130,19 @@ describe('userService', () => {
     describe('deleteUser', () => {
         it('should delete user and return deleted user', async () => {
             const deletedUser = createUserFixture({ id: 1 });
+            const { password: _, ...deletedUserWithoutPassword } = deletedUser;
+            const expectedUser = createUserResponseFixture({ id: 1 });
 
             vi.mocked(db.delete).mockReturnValue({
                 where: vi.fn().mockReturnValue({
-                    returning: vi.fn().mockResolvedValue([deletedUser]),
+                    returning: vi.fn().mockResolvedValue([deletedUserWithoutPassword]),
                 }),
             } as never);
 
             const result = await userService.deleteUser(1);
 
             expect(db.delete).toHaveBeenCalled();
-            expect(result).toEqual(deletedUser);
+            expect(result).toEqual(expectedUser);
         });
 
         it('should return undefined when user not found', async () => {

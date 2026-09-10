@@ -44,7 +44,7 @@ export const taskAssignmentService = {
                 userId: taskAssignments.userId,
                 userName: users.name,
                 userEmail: users.email,
-                userAvatarUrl: users.avatarUrl,
+                userAvatarUrl: users.avatarStorageKey,
                 assignedAt: taskAssignments.assignedAt,
             })
             .from(taskAssignments)

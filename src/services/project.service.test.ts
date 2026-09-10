@@ -20,6 +20,64 @@ describe('projectService', () => {
         vi.clearAllMocks();
     });
 
+    const mockProjectRowsQuery = (rows: unknown[]) => {
+        vi.mocked(db.select).mockReturnValueOnce({
+            from: vi.fn().mockReturnValue({
+                leftJoin: vi.fn().mockReturnValue({
+                    where: vi.fn().mockReturnValue({
+                        orderBy: vi.fn().mockReturnValue({
+                            limit: vi.fn().mockReturnValue({
+                                offset: vi.fn().mockResolvedValue(rows),
+                            }),
+                        }),
+                    }),
+                }),
+            }),
+        } as never);
+    };
+
+    const mockProjectByIdQuery = (rows: unknown[]) => {
+        vi.mocked(db.select).mockReturnValueOnce({
+            from: vi.fn().mockReturnValue({
+                leftJoin: vi.fn().mockReturnValue({
+                    where: vi.fn().mockResolvedValue(rows),
+                }),
+            }),
+        } as never);
+    };
+
+    const mockProjectTeamsQuery = (rows: unknown[]) => {
+        vi.mocked(db.select).mockReturnValueOnce({
+            from: vi.fn().mockReturnValue({
+                leftJoin: vi.fn().mockReturnValue({
+                    where: vi.fn().mockReturnValue({
+                        orderBy: vi.fn().mockResolvedValue(rows),
+                    }),
+                }),
+            }),
+        } as never);
+    };
+
+    const mockProjectSidebarRowsQuery = (rows: unknown[]) => {
+        vi.mocked(db.select).mockReturnValueOnce({
+            from: vi.fn().mockReturnValue({
+                where: vi.fn().mockReturnValue({
+                    orderBy: vi.fn().mockResolvedValue(rows),
+                }),
+            }),
+        } as never);
+    };
+
+    const mockTaskCountRowsQuery = (rows: unknown[]) => {
+        vi.mocked(db.select).mockReturnValueOnce({
+            from: vi.fn().mockReturnValue({
+                where: vi.fn().mockReturnValue({
+                    groupBy: vi.fn().mockResolvedValue(rows),
+                }),
+            }),
+        } as never);
+    };
+
     describe('createProject', () => {
         it('should create a new project', async () => {
             const input = { name: 'Test Project', description: 'A test project', teamId: 1, ownerId: 1 };
@@ -30,19 +88,46 @@ describe('projectService', () => {
                     returning: vi.fn().mockResolvedValue([createdProject]),
                 }),
             } as never);
+            vi.mocked(db.insert).mockReturnValueOnce({
+                values: vi.fn().mockReturnValue({
+                    returning: vi.fn().mockResolvedValue([createdProject]),
+                }),
+            } as never);
+            vi.mocked(db.insert).mockReturnValueOnce({
+                values: vi.fn().mockResolvedValue(undefined),
+            } as never);
+            mockProjectByIdQuery([{
+                id: createdProject.id,
+                name: createdProject.name,
+                description: createdProject.description,
+                ownerId: createdProject.ownerId,
+                ownerName: 'Owner 1',
+                createdAt: createdProject.createdAt,
+                updatedAt: createdProject.updatedAt,
+            }]);
+            mockProjectTeamsQuery([{ projectId: createdProject.id, teamId: 1, teamName: 'Team 1' }]);
 
             const result = await projectService.createProject(input);
 
             expect(db.insert).toHaveBeenCalled();
-            expect(result).toEqual(createdProject);
+            expect(result).toMatchObject({
+                ...createdProject,
+                ownerName: 'Owner 1',
+                teamId: 1,
+                teamName: 'Team 1',
+            });
         });
     });
 
     describe('getAllProjects', () => {
         it('should return paginated projects with joined data', async () => {
             const projects = [
-                { id: 1, name: 'Project 1', teamId: 1, teamName: 'Team 1', ownerId: 1, ownerName: 'Owner 1' },
-                { id: 2, name: 'Project 2', teamId: 2, teamName: 'Team 2', ownerId: 2, ownerName: 'Owner 2' },
+                { id: 1, name: 'Project 1', ownerId: 1, ownerName: 'Owner 1' },
+                { id: 2, name: 'Project 2', ownerId: 2, ownerName: 'Owner 2' },
+            ];
+            const expectedProjects = [
+                { ...projects[0], teamId: 1, teamName: 'Team 1' },
+                { ...projects[1], teamId: 2, teamName: 'Team 2' },
             ];
 
             // Mock count query
@@ -53,25 +138,15 @@ describe('projectService', () => {
             } as never);
 
             // Mock data query
-            vi.mocked(db.select).mockReturnValueOnce({
-                from: vi.fn().mockReturnValue({
-                    leftJoin: vi.fn().mockReturnValue({
-                        leftJoin: vi.fn().mockReturnValue({
-                            where: vi.fn().mockReturnValue({
-                                orderBy: vi.fn().mockReturnValue({
-                                    limit: vi.fn().mockReturnValue({
-                                        offset: vi.fn().mockResolvedValue(projects),
-                                    }),
-                                }),
-                            }),
-                        }),
-                    }),
-                }),
-            } as never);
+            mockProjectRowsQuery(projects);
+            mockProjectTeamsQuery([
+                { projectId: 1, teamId: 1, teamName: 'Team 1' },
+                { projectId: 2, teamId: 2, teamName: 'Team 2' },
+            ]);
 
             const result = await projectService.getAllProjects({ page: 1, limit: 10 });
 
-            expect(result.data).toEqual(projects);
+            expect(result.data).toEqual(expectedProjects);
             expect(result.pagination.totalItems).toBe(2);
         });
 
@@ -82,21 +157,7 @@ describe('projectService', () => {
                 }),
             } as never);
 
-            vi.mocked(db.select).mockReturnValueOnce({
-                from: vi.fn().mockReturnValue({
-                    leftJoin: vi.fn().mockReturnValue({
-                        leftJoin: vi.fn().mockReturnValue({
-                            where: vi.fn().mockReturnValue({
-                                orderBy: vi.fn().mockReturnValue({
-                                    limit: vi.fn().mockReturnValue({
-                                        offset: vi.fn().mockResolvedValue([]),
-                                    }),
-                                }),
-                            }),
-                        }),
-                    }),
-                }),
-            } as never);
+            mockProjectRowsQuery([]);
 
             const result = await projectService.getAllProjects();
 
@@ -110,41 +171,55 @@ describe('projectService', () => {
             const project = {
                 id: 1,
                 name: 'Project 1',
-                teamId: 1,
-                teamName: 'Team 1',
                 ownerId: 1,
                 ownerName: 'Owner 1',
             };
+            const expectedProject = { ...project, teamId: 1, teamName: 'Team 1' };
 
-            vi.mocked(db.select).mockReturnValue({
-                from: vi.fn().mockReturnValue({
-                    leftJoin: vi.fn().mockReturnValue({
-                        leftJoin: vi.fn().mockReturnValue({
-                            where: vi.fn().mockResolvedValue([project]),
-                        }),
-                    }),
-                }),
-            } as never);
+            mockProjectByIdQuery([project]);
+            mockProjectTeamsQuery([{ projectId: 1, teamId: 1, teamName: 'Team 1' }]);
 
             const result = await projectService.getProjectById(1);
 
-            expect(result).toEqual(project);
+            expect(result).toEqual(expectedProject);
         });
 
         it('should return undefined when project not found', async () => {
-            vi.mocked(db.select).mockReturnValue({
-                from: vi.fn().mockReturnValue({
-                    leftJoin: vi.fn().mockReturnValue({
-                        leftJoin: vi.fn().mockReturnValue({
-                            where: vi.fn().mockResolvedValue([]),
-                        }),
-                    }),
-                }),
-            } as never);
+            mockProjectByIdQuery([]);
 
             const result = await projectService.getProjectById(999);
 
             expect(result).toBeUndefined();
+        });
+    });
+
+    describe('getProjectSidebar', () => {
+        it('should return sidebar projects with open task counts', async () => {
+            mockProjectSidebarRowsQuery([
+                { id: 1, name: 'Project 1' },
+                { id: 2, name: 'Project 2' },
+            ]);
+            mockTaskCountRowsQuery([
+                { projectId: 1, openTaskCount: 7 },
+            ]);
+
+            const result = await projectService.getProjectSidebar();
+
+            expect(result).toEqual({
+                data: [
+                    { id: 1, name: 'Project 1', openTaskCount: 7 },
+                    { id: 2, name: 'Project 2', openTaskCount: 0 },
+                ],
+            });
+        });
+
+        it('should skip task count query when no projects are visible', async () => {
+            mockProjectSidebarRowsQuery([]);
+
+            const result = await projectService.getProjectSidebar();
+
+            expect(result).toEqual({ data: [] });
+            expect(db.select).toHaveBeenCalledTimes(1);
         });
     });
 
@@ -159,11 +234,26 @@ describe('projectService', () => {
                     }),
                 }),
             } as never);
+            mockProjectByIdQuery([{
+                id: updatedProject.id,
+                name: updatedProject.name,
+                description: updatedProject.description,
+                ownerId: updatedProject.ownerId,
+                ownerName: 'Owner 1',
+                createdAt: updatedProject.createdAt,
+                updatedAt: updatedProject.updatedAt,
+            }]);
+            mockProjectTeamsQuery([{ projectId: updatedProject.id, teamId: 1, teamName: 'Team 1' }]);
 
             const result = await projectService.updateProject(1, { name: 'Updated Project' });
 
             expect(db.update).toHaveBeenCalled();
-            expect(result).toEqual(updatedProject);
+            expect(result).toMatchObject({
+                ...updatedProject,
+                ownerName: 'Owner 1',
+                teamId: 1,
+                teamName: 'Team 1',
+            });
         });
     });
 

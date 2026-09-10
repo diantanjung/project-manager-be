@@ -64,23 +64,31 @@ describe('authService', () => {
     });
 
     describe('register', () => {
-        it('should register a new user successfully', async () => {
+        it('should register a new user successfully and create a session', async () => {
             const userData = { email: 'test@example.com', password: 'password123', name: 'Test' };
-            const createdUser = { id: 1, email: 'test@example.com', name: 'Test' };
+            const createdUser = { id: 1, email: 'test@example.com', name: 'Test', role: 'teamMember' as const };
 
             vi.mocked(db.query.users.findFirst).mockResolvedValue(undefined);
             vi.mocked(userService.createUser).mockResolvedValue(createdUser as never);
+            vi.mocked(db.insert).mockReturnValue({
+                values: vi.fn().mockResolvedValue([{}]),
+            } as never);
 
             const result = await authService.register(userData);
 
             expect(db.query.users.findFirst).toHaveBeenCalled();
             expect(userService.createUser).toHaveBeenCalledWith(userData);
-            expect(result).toEqual(createdUser);
+            expect(result).toEqual({
+                user: createdUser,
+                accessToken: 'mock-token',
+                refreshToken: 'mock-token',
+            });
+            expect(db.insert).toHaveBeenCalled();
         });
 
         it('should throw error when user already exists', async () => {
             const userData = { email: 'test@example.com', password: 'password123', name: 'Test' };
-            const existingUser = { id: 1, email: 'test@example.com', name: 'Test', password: 'hashed', avatarUrl: null, role: 'teamMember' as const, createdAt: new Date(), updatedAt: new Date() };
+            const existingUser = { id: 1, email: 'test@example.com', name: 'Test', password: 'hashed', avatarStorageKey: null, role: 'teamMember' as const, createdAt: new Date(), updatedAt: new Date() };
 
             vi.mocked(db.query.users.findFirst).mockResolvedValue(existingUser);
 
@@ -91,7 +99,7 @@ describe('authService', () => {
     describe('login', () => {
         it('should login successfully with correct credentials', async () => {
             const loginData = { email: 'test@example.com', password: 'password123' };
-            const user = { id: 1, email: 'test@example.com', name: 'Test', password: 'hashedpassword', avatarUrl: null, role: 'teamMember' as const, createdAt: new Date(), updatedAt: new Date() };
+            const user = { id: 1, email: 'test@example.com', name: 'Test', password: 'hashedpassword', avatarStorageKey: null, role: 'teamMember' as const, createdAt: new Date(), updatedAt: new Date() };
 
             vi.mocked(db.query.users.findFirst).mockResolvedValue(user);
             vi.mocked(bcrypt.compare).mockResolvedValue(true as never);
@@ -119,7 +127,7 @@ describe('authService', () => {
 
         it('should throw error when password is incorrect', async () => {
             const loginData = { email: 'test@example.com', password: 'wrongpassword' };
-            const user = { id: 1, email: 'test@example.com', name: 'Test', password: 'hashedpassword', avatarUrl: null, role: 'teamMember' as const, createdAt: new Date(), updatedAt: new Date() };
+            const user = { id: 1, email: 'test@example.com', name: 'Test', password: 'hashedpassword', avatarStorageKey: null, role: 'teamMember' as const, createdAt: new Date(), updatedAt: new Date() };
 
             vi.mocked(db.query.users.findFirst).mockResolvedValue(user);
             vi.mocked(bcrypt.compare).mockResolvedValue(false as never);
@@ -158,7 +166,7 @@ describe('authService', () => {
         it('should refresh access token successfully', async () => {
             const refreshToken = 'valid-refresh-token';
             const payload = { id: 1, email: 'test@example.com', type: 'refresh' };
-            const user = { id: 1, email: 'test@example.com', name: 'Test', password: 'hashed', avatarUrl: null, role: 'teamMember' as const, createdAt: new Date(), updatedAt: new Date() };
+            const user = { id: 1, email: 'test@example.com', name: 'Test', password: 'hashed', avatarStorageKey: null, role: 'teamMember' as const, createdAt: new Date(), updatedAt: new Date() };
 
             vi.mocked(jwt.verify).mockReturnValue(payload as never);
             vi.mocked(db.query.refreshTokens.findFirst).mockResolvedValue({ id: 1, token: 'hashed', userId: 1, createdAt: new Date(), expiresAt: new Date(), isRevoked: false });

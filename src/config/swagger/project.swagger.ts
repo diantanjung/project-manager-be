@@ -51,6 +51,19 @@ export function registerProjectEndpoints(registry: OpenAPIRegistry) {
         },
     });
 
+    // GET /api/projects/sidebar
+    registry.registerPath({
+        method: "get",
+        path: "/api/projects/sidebar",
+        summary: "List projects for sidebar navigation",
+        tags: ["Projects"],
+        security: [{ bearerAuth: [] }],
+        responses: {
+            200: { description: "Lightweight project list with open task counts" },
+            401: { description: "Unauthorized" },
+        },
+    });
+
     // GET /api/projects/:id
     registry.registerPath({
         method: "get",

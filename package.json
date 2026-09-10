@@ -7,7 +7,7 @@
     "db:push": "npx drizzle-kit push",
     "db:seed": "tsx src/db/seed.ts",
     "dev": "tsx watch src/server.ts",
-    "build": "tsc",
+    "build": "tsc -p tsconfig.build.json",
     "start": "node dist/server.js",
     "test": "vitest",
     "test:run": "vitest run",

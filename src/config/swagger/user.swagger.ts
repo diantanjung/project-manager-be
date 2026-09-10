@@ -1,6 +1,16 @@
 import { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
 import { z } from "../../lib/zod.js";
 
+const userResponseSchema = z.object({
+    id: z.number(),
+    name: z.string(),
+    email: z.string(),
+    avatarUrl: z.string().nullable(),
+    role: z.enum(["admin", "productOwner", "projectManager", "teamMember"]),
+    createdAt: z.string().nullable(),
+    updatedAt: z.string().nullable(),
+});
+
 export function registerUserEndpoints(registry: OpenAPIRegistry) {
     // GET /api/users
     registry.registerPath({
@@ -24,15 +34,7 @@ export function registerUserEndpoints(registry: OpenAPIRegistry) {
                 content: {
                     "application/json": {
                         schema: z.object({
-                            data: z.array(
-                                z.object({
-                                    id: z.number(),
-                                    name: z.string(),
-                                    email: z.string(),
-                                    createdAt: z.string(),
-                                    updatedAt: z.string(),
-                                })
-                            ),
+                            data: z.array(userResponseSchema),
                             pagination: z.object({
                                 page: z.number(),
                                 limit: z.number(),
@@ -62,6 +64,7 @@ export function registerUserEndpoints(registry: OpenAPIRegistry) {
                             name: z.string(),
                             email: z.string(),
                             password: z.string(),
+                            role: z.enum(["admin", "productOwner", "projectManager", "teamMember"]).optional(),
                         }),
                     },
                 },
@@ -72,13 +75,7 @@ export function registerUserEndpoints(registry: OpenAPIRegistry) {
                 description: "User created",
                 content: {
                     "application/json": {
-                        schema: z.object({
-                            id: z.number(),
-                            name: z.string(),
-                            email: z.string(),
-                            createdAt: z.string(),
-                            updatedAt: z.string(),
-                        }),
+                        schema: userResponseSchema,
                     },
                 },
             },
@@ -102,13 +99,7 @@ export function registerUserEndpoints(registry: OpenAPIRegistry) {
                 description: "User found",
                 content: {
                     "application/json": {
-                        schema: z.object({
-                            id: z.number(),
-                            name: z.string(),
-                            email: z.string(),
-                            createdAt: z.string(),
-                            updatedAt: z.string(),
-                        }),
+                        schema: userResponseSchema,
                     },
                 },
             },
@@ -133,6 +124,8 @@ export function registerUserEndpoints(registry: OpenAPIRegistry) {
                             name: z.string().optional(),
                             email: z.string().optional(),
                             password: z.string().optional(),
+                            role: z.enum(["admin", "productOwner", "projectManager", "teamMember"]).optional(),
+                            avatarUrl: z.string().nullable().optional(),
                         }),
                     },
                 },
@@ -143,18 +136,53 @@ export function registerUserEndpoints(registry: OpenAPIRegistry) {
                 description: "User updated",
                 content: {
                     "application/json": {
-                        schema: z.object({
-                            id: z.number(),
-                            name: z.string(),
-                            email: z.string(),
-                            createdAt: z.string(),
-                            updatedAt: z.string(),
-                        }),
+                        schema: userResponseSchema,
                     },
                 },
             },
             404: { description: "User not found" },
             401: { description: "Unauthorized" },
+        },
+    });
+
+    // POST /api/users/:id/avatar
+    registry.registerPath({
+        method: "post",
+        path: "/api/users/{id}/avatar",
+        summary: "Upload user avatar",
+        description: "Stores the uploaded avatar as the user's avatarStorageKey and returns the runtime avatarUrl",
+        tags: ["Users"],
+        security: [{ bearerAuth: [] }],
+        request: {
+            params: z.object({ id: z.string() }),
+            body: {
+                content: {
+                    "multipart/form-data": {
+                        schema: z.object({
+                            avatar: z.any(),
+                        }),
+                    },
+                },
+            },
+        },
+        responses: {
+            200: {
+                description: "Avatar uploaded",
+                content: {
+                    "application/json": {
+                        schema: z.object({
+                            data: z.object({
+                                avatarStorageKey: z.string(),
+                                avatarUrl: z.string(),
+                            }),
+                        }),
+                    },
+                },
+            },
+            400: { description: "No file uploaded or invalid file" },
+            401: { description: "Unauthorized" },
+            403: { description: "Forbidden" },
+            404: { description: "User not found" },
         },
     });
 

@@ -73,6 +73,44 @@ export const userController = {
     }
   },
 
+  async uploadAvatar(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const userId = Number(req.params.id);
+
+      if (!req.file) {
+        return res.status(400).json({ message: "No file uploaded" });
+      }
+
+      if (!req.user) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+
+      const actor = await userService.getUserById(req.user.id);
+      if (!actor) {
+        return res.status(401).json({ message: "User not found" });
+      }
+
+      if (req.user.id !== userId && actor.role !== "admin") {
+        return res.status(403).json({ message: "Only self or admins can upload user avatars" });
+      }
+
+      const avatarUrl = `/uploads/${req.file.filename}`;
+      const user = await userService.updateUser(userId, { avatarStorageKey: avatarUrl });
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      return res.status(200).json({
+        data: {
+          avatarStorageKey: avatarUrl,
+          avatarUrl,
+        },
+      });
+    } catch (error) {
+      return next(error);
+    }
+  },
+
   async deleteUser(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const user = await userService.deleteUser(Number(req.params.id));

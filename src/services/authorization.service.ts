@@ -21,14 +21,6 @@ const asUserRole = (role?: string): UserRole =>
 const hasElevatedReadAccess = (user: AuthUser) =>
     elevatedReadRoles.some((role) => hasRole(asUserRole(user.role), role));
 
-const primaryTeamMembershipExists = (userId: number) =>
-    exists(
-        db
-            .select({ id: teamMembers.id })
-            .from(teamMembers)
-            .where(and(eq(teamMembers.userId, userId), eq(teamMembers.teamId, projects.teamId)))
-    );
-
 const additionalTeamMembershipExists = (userId: number) =>
     exists(
         db
@@ -66,7 +58,6 @@ export const authorizationService = {
 
         return or(
             eq(projects.ownerId, user.id),
-            primaryTeamMembershipExists(user.id),
             additionalTeamMembershipExists(user.id)
         );
     },
