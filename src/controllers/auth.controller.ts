@@ -3,12 +3,20 @@ import { authService } from "../services/auth.service.js";
 import { AuthRequest } from "../middlewares/auth.js";
 
 // Cookie options for refresh token
+const isProduction = process.env.NODE_ENV === "production";
 const REFRESH_TOKEN_COOKIE_OPTIONS = {
   httpOnly: true,
-  secure: process.env.NODE_ENV === "production",
-  sameSite: "strict" as const,
+  secure: isProduction,
+  sameSite: (isProduction ? "none" : "lax") as "none" | "lax",
   path: "/",
   maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+};
+
+const CLEAR_REFRESH_TOKEN_COOKIE_OPTIONS = {
+  httpOnly: true,
+  secure: REFRESH_TOKEN_COOKIE_OPTIONS.secure,
+  sameSite: REFRESH_TOKEN_COOKIE_OPTIONS.sameSite,
+  path: REFRESH_TOKEN_COOKIE_OPTIONS.path,
 };
 
 export const authController = {
@@ -82,12 +90,7 @@ export const authController = {
           error.message === "Invalid refresh token")
       ) {
         // Clear invalid cookie
-        res.clearCookie("refreshToken", {
-          httpOnly: true,
-          secure: process.env.NODE_ENV === "production",
-          sameSite: "strict" as const,
-          path: "/",
-        });
+        res.clearCookie("refreshToken", CLEAR_REFRESH_TOKEN_COOKIE_OPTIONS);
         return res.status(401).json({ message: error.message });
       }
       return next(error);
@@ -104,12 +107,7 @@ export const authController = {
       }
 
       // Clear the refresh token cookie
-      res.clearCookie("refreshToken", {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict" as const,
-        path: "/",
-      });
+      res.clearCookie("refreshToken", CLEAR_REFRESH_TOKEN_COOKIE_OPTIONS);
 
       return res.status(204).send();
     } catch (error: unknown) {
