@@ -21,13 +21,52 @@ import path from "path";
 
 const app = express();
 
+app.set("trust proxy", 1);
+
+const parseCorsOrigins = (value?: string) =>
+  (value ?? "")
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+
+const allowedOrigins = [
+  ...new Set([
+    ...parseCorsOrigins(process.env.CORS_ORIGINS || process.env.FRONTEND_URL),
+    "http://localhost:5173",
+    "http://localhost:5174",
+    "http://localhost:3000",
+  ]),
+];
+const vercelPreviewOriginPattern =
+  /^https:\/\/project-manager-[a-z0-9-]+-dian-tanjungs-projects\.vercel\.app$/;
+
+const isAllowedOrigin = (origin: string) =>
+  allowedOrigins.includes(origin) || vercelPreviewOriginPattern.test(origin);
+
+const requireAllowedBrowserOrigin: express.RequestHandler = (req, res, next) => {
+  const origin = req.get("origin");
+
+  if (origin && !isAllowedOrigin(origin)) {
+    return res.status(403).json({ message: "Origin is not allowed" });
+  }
+
+  return next();
+};
+
 // Security Headers
 app.use(helmet());
 
 // CORS Configuration - Allow credentials for HttpOnly cookies
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:5173",
+    origin(origin, callback) {
+      if (!origin || isAllowedOrigin(origin)) {
+        callback(null, true);
+        return;
+      }
+
+      callback(new Error(`Origin ${origin} is not allowed by CORS`));
+    },
     credentials: true,
   })
 );
@@ -38,6 +77,8 @@ app.use(express.urlencoded({ extended: true }));
 
 // Cookie Parser - for reading HttpOnly cookies
 app.use(cookieParser());
+
+app.use(["/api/v1/auth", "/api/auth"], requireAllowedBrowserOrigin);
 
 if (process.env.NODE_ENV !== "production") {
   app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
